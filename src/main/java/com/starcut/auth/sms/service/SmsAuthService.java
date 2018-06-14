@@ -14,6 +14,8 @@ import com.starcut.auth.sms.db.SmsCodeId;
 import com.starcut.auth.sms.db.SmsCodeRepository;
 import com.starcut.auth.sms.exceptions.ExpiredCodeException;
 import com.starcut.auth.sms.exceptions.InvalidCodeException;
+import com.starcut.auth.sms.exceptions.InvalidPhoneNumberException;
+import com.starcut.auth.sms.exceptions.SmsAuthException;
 import com.starcut.auth.sms.exceptions.TooManySmsSentException;
 import com.starcut.auth.sms.exceptions.TooManyTrialsException;
 import com.starcut.auth.sms.exceptions.WrongCodeException;
@@ -38,7 +40,10 @@ public class SmsAuthService {
 		return String.format("%0" + smsAuthConfig.getCodeLength() + "d", code);
 	}
 
-	public void sendSms(String phonenumber) throws TooManySmsSentException {
+	public void sendSms(String phonenumber) throws SmsAuthException {
+		if (phonenumber == null || phonenumber.isEmpty()) {
+			throw new InvalidPhoneNumberException();
+		}
 		Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
 		List<SmsCode> smsCodes = smsCodeRepository
 				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, oldest);
