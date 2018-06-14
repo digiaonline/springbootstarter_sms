@@ -1,5 +1,6 @@
 package com.starcut.auth.sms.db;
 
+import java.beans.Transient;
 import java.time.Instant;
 
 import javax.persistence.Column;
@@ -63,6 +64,11 @@ public class SmsCode {
 
 	public void setId(SmsCodeId id) {
 		this.id = id;
+	}
+
+	@Transient
+	public void incrementTrials() {
+		this.trials++;
 	}
 
 }

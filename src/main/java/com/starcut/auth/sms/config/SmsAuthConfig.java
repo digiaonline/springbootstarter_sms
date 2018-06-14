@@ -6,7 +6,13 @@ public class SmsAuthConfig {
 
 	private int codeLength;
 
-	private int maxRetryPerDay;
+	private int maxSmsPerPeriod;
+
+	private int periodInMinutes;
+
+	private int codeValidityInMinutes;
+
+	private int maxTrialsPerCode;
 
 	public String getShortCode() {
 		return shortCode;
@@ -16,20 +22,44 @@ public class SmsAuthConfig {
 		this.shortCode = shortCode;
 	}
 
-	public int getMaxRetryPerDay() {
-		return maxRetryPerDay;
-	}
-
-	public void setMaxRetryPerDay(int maxRetryPerDay) {
-		this.maxRetryPerDay = maxRetryPerDay;
-	}
-
 	public int getCodeLength() {
 		return codeLength;
 	}
 
 	public void setCodeLength(int codeLength) {
 		this.codeLength = codeLength;
+	}
+
+	public int getMaxSmsPerPeriod() {
+		return maxSmsPerPeriod;
+	}
+
+	public void setMaxSmsPerPeriod(int maxSmsPerPeriod) {
+		this.maxSmsPerPeriod = maxSmsPerPeriod;
+	}
+
+	public int getPeriodInMinutes() {
+		return periodInMinutes;
+	}
+
+	public void setPeriodInMinutes(int periodInMinutes) {
+		this.periodInMinutes = periodInMinutes;
+	}
+
+	public int getCodeValidityInMinutes() {
+		return codeValidityInMinutes;
+	}
+
+	public void setCodeValidityInMinutes(int codeValidityInMinutes) {
+		this.codeValidityInMinutes = codeValidityInMinutes;
+	}
+
+	public int getMaxTrialsPerCode() {
+		return maxTrialsPerCode;
+	}
+
+	public void setMaxTrialsPerCode(int maxTrialsPerCode) {
+		this.maxTrialsPerCode = maxTrialsPerCode;
 	}
 
 }
