@@ -26,7 +26,7 @@ public class SmsCode {
 	@Column(insertable = false, updatable = false)
 	private String code;
 
-	private Boolean disabled;
+	private Boolean disabled = false;
 
 	public Instant getCreatedAt() {
 		return createdAt;
