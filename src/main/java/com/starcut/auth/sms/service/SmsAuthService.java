@@ -45,6 +45,11 @@ public class SmsAuthService {
 		if (smsCodes.size() >= smsAuthConfig.getMaxSmsPerPeriod()) {
 			throw new TooManySmsSentException();
 		}
+		if (!smsCodes.isEmpty()) {
+			SmsCode previousCode = smsCodes.get(0);
+			previousCode.setDisabled(true);
+			smsCodeRepository.save(previousCode);
+		}
 		String code = generateCode();
 		SmsCode smsCode = new SmsCode();
 		SmsCodeId id = new SmsCodeId();
@@ -53,6 +58,7 @@ public class SmsAuthService {
 		smsCode.setCode(code);
 		smsCode.setPhonenumber(phonenumber);
 		smsCode.setId(id);
+		smsCodes.add(smsCode);
 		smsCodeRepository.save(smsCode);
 	}
 
@@ -64,6 +70,9 @@ public class SmsAuthService {
 			throw new ExpiredCodeException();
 		}
 		SmsCode smsCode = smsCodes.get(0);
+		if (smsCode.getDisabled()) {
+			throw new ExpiredCodeException();
+		}
 		if (smsCode.getTrials() >= smsAuthConfig.getMaxTrialsPerCode()) {
 			throw new TooManyTrialsException();
 		}

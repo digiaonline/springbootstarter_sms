@@ -3,10 +3,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
 		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
-		
+
 	<changeSet id="1" author="Stephane Weiss">
 		<createTable tableName="sms_code">
-			
+
 			<column name="phonenumber" type="VARCHAR(10)">
 				<constraints nullable="false" />
 			</column>
@@ -18,24 +18,24 @@
 			<column name="trials" type="INTEGER" defaultValue="0">
 				<constraints nullable="false" />
 			</column>
-			
+
+			<column name="disabled" type="BOOLEAN" defaultValue="false">
+				<constraints nullable="false" />
+			</column>
+
 			<column name="created_at" type="DATETIME" defaultValue="now()">
 				<constraints nullable="false" />
 			</column>
-		</createTable>	
+		</createTable>
 	</changeSet>
-	
+
 	<changeSet id="2" author="Stephane Weiss">
-		<createIndex
-            	indexName="idx_phonenumber"
-            	tableName="sms_code">
-        			<column name="phonenumber" type="varchar(10)"/>
-    	</createIndex>
-    	
-    	<addPrimaryKey
-            columnNames="phonenumber, code"
-            constraintName="pk_sms_code"
-            tableName="sms_code" />
-	
+		<createIndex indexName="idx_phonenumber" tableName="sms_code">
+			<column name="phonenumber" type="varchar(10)" />
+		</createIndex>
+
+		<addPrimaryKey columnNames="phonenumber, code"
+			constraintName="pk_sms_code" tableName="sms_code" />
+
 	</changeSet>
 </databaseChangeLog>
