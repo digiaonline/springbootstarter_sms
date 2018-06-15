@@ -30,6 +30,8 @@ public class SmsAuthAutoConfiguration {
 
 	private final int DEFAULT_MAX_TRIALS_PER_CODE = 3;
 
+	private final String DEFAULT_REGION = "FI";
+
 	@Autowired
 	private SmsAuthProperties smsAuthProperties;
 
@@ -49,6 +51,7 @@ public class SmsAuthAutoConfiguration {
 				: smsAuthProperties.getCodeValidityInMinutes();
 		Integer maxTrialsPerCode = smsAuthProperties.getMaxTrialsPerCode() == null ? DEFAULT_MAX_TRIALS_PER_CODE
 				: smsAuthProperties.getMaxTrialsPerCode();
+		String region = smsAuthProperties.getRegion() == null ? DEFAULT_REGION : smsAuthProperties.getRegion();
 
 		SmsAuthConfig authSmsConfig = new SmsAuthConfig();
 		authSmsConfig.setShortCode(shortCode);
@@ -57,6 +60,7 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setCodeLength(codeLength);
 		authSmsConfig.setCodeValidityInMinutes(codeValidityInMinutes);
 		authSmsConfig.setMaxTrialsPerCode(maxTrialsPerCode);
+		authSmsConfig.setRegion(region);
 
 		return authSmsConfig;
 	}

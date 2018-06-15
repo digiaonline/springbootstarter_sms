@@ -8,6 +8,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.starcut.auth.sms.config.SmsAuthConfig;
 import com.starcut.auth.sms.db.SmsCode;
 import com.starcut.auth.sms.db.SmsCodeId;
@@ -30,6 +34,8 @@ public class SmsAuthService {
 
 	private SecureRandom secureRandom = new SecureRandom();
 
+	private PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+
 	public SmsAuthService(SmsAuthConfig authSmsConfig) {
 		this.smsAuthConfig = authSmsConfig;
 	}
@@ -40,13 +46,24 @@ public class SmsAuthService {
 		return String.format("%0" + smsAuthConfig.getCodeLength() + "d", code);
 	}
 
-	public void sendSms(String phonenumber) throws SmsAuthException {
-		if (phonenumber == null || phonenumber.isEmpty()) {
+	private String getFormattedPhoneNumber(String number) throws InvalidPhoneNumberException {
+		PhoneNumber phoneNumber;
+		try {
+			phoneNumber = phoneNumberUtil.parse(number, smsAuthConfig.getRegion());
+		} catch (NumberParseException e) {
 			throw new InvalidPhoneNumberException();
 		}
+		if (!phoneNumberUtil.isValidNumber(phoneNumber)) {
+			throw new InvalidPhoneNumberException();
+		}
+		return phoneNumberUtil.format(phoneNumber, PhoneNumberFormat.E164);
+	}
+
+	public void sendSms(String number) throws SmsAuthException {
+		String formattedPhoneNumber = getFormattedPhoneNumber(number);
 		Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
 		List<SmsCode> smsCodes = smsCodeRepository
-				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, oldest);
+				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
 		if (smsCodes.size() >= smsAuthConfig.getMaxSmsPerPeriod()) {
 			throw new TooManySmsSentException();
 		}
@@ -59,18 +76,20 @@ public class SmsAuthService {
 		SmsCode smsCode = new SmsCode();
 		SmsCodeId id = new SmsCodeId();
 		id.setCode(code);
-		id.setPhonenumber(phonenumber);
+		id.setPhonenumber(formattedPhoneNumber);
 		smsCode.setCode(code);
-		smsCode.setPhonenumber(phonenumber);
+		smsCode.setPhonenumber(formattedPhoneNumber);
 		smsCode.setId(id);
 		smsCodes.add(smsCode);
 		smsCodeRepository.save(smsCode);
 	}
 
-	public void validateSmsCode(String phonenumber, String code) throws InvalidCodeException {
+	public void validateSmsCode(String phonenumber, String code)
+			throws InvalidCodeException, InvalidPhoneNumberException {
+		String formattedPhoneNumber = getFormattedPhoneNumber(phonenumber);
 		Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getCodeValidityInMinutes()));
 		List<SmsCode> smsCodes = smsCodeRepository
-				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, oldest);
+				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
 		if (smsCodes.isEmpty()) {
 			throw new ExpiredCodeException();
 		}

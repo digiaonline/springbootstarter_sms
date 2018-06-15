@@ -16,6 +16,8 @@ public class SmsAuthProperties {
 
 	private Integer maxTrialsPerCode;
 
+	private String region;
+
 	public String getShortCode() {
 		return shortCode;
 	}
@@ -62,6 +64,14 @@ public class SmsAuthProperties {
 
 	public void setMaxTrialsPerCode(Integer maxTrialsPerCode) {
 		this.maxTrialsPerCode = maxTrialsPerCode;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }

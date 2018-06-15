@@ -60,7 +60,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test
 	public void testSendSmsCountSms() throws SmsAuthException {
-		String phonenumber = "0123456789";
+		String phonenumber = "+35840123450";
 
 		Collection<SmsCode> codes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		assertEquals(0L, codes.size());
@@ -71,7 +71,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test
 	public void testCanSendMaxNumberOfSms() throws SmsAuthException {
-		String phonenumber = "1";
+		String phonenumber = "+35840123451";
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
 			smsAuthService.sendSms(phonenumber);
 		}
@@ -79,7 +79,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test(expected = TooManySmsSentException.class)
 	public void testSpammingSmsRaiseException() throws SmsAuthException {
-		String phonenumber = "2";
+		String phonenumber = "+35840123452";
 
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
 			smsAuthService.sendSms(phonenumber);
@@ -89,7 +89,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test
 	public void testSendSmsCountSmsFromPeriodOnly() throws SmsAuthException {
-		String phonenumber = "3";
+		String phonenumber = "+35840123453";
 
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
 			smsAuthService.sendSms(phonenumber);
@@ -106,7 +106,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test
 	public void testVerifySMS() throws SmsAuthException {
-		String phonenumber = "4";
+		String phonenumber = "+35840123454";
 
 		smsAuthService.sendSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
@@ -117,7 +117,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test(expected = InvalidCodeException.class)
 	public void testVerifySMSOnlyValidOnce() throws SmsAuthException {
-		String phonenumber = "5";
+		String phonenumber = "+35840123455";
 
 		smsAuthService.sendSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
@@ -130,7 +130,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	/* test that expired codes are invalid, even if the code is right */
 	@Test(expected = ExpiredCodeException.class)
 	public void testExpiredCodeRaiseException() throws SmsAuthException {
-		String phonenumber = "6";
+		String phonenumber = "+35840123456";
 
 		smsAuthService.sendSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
@@ -144,7 +144,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	/* test that a code is disabled if a new one is created */
 	@Test
 	public void testNewCodeDisablePrevious() throws SmsAuthException {
-		String phonenumber = "7";
+		String phonenumber = "+35840123457";
 
 		smsAuthService.sendSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
@@ -161,10 +161,11 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	 */
 	@Test(expected = TooManyTrialsException.class)
 	public void testInvalidCodeAfterMaxTrial() throws SmsAuthException {
-		String phonenumber = "8";
+		String phonenumber = "040123458";
+		String formattedPhoneNumber = "+35840123458";
 
 		smsAuthService.sendSms(phonenumber);
-		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
+		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(formattedPhoneNumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 
 		for (int i = 0; i < smsAuthConfig.getMaxTrialsPerCode(); i++) {
@@ -183,7 +184,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	 */
 	@Test
 	public void testSuccessfulVerificationDoNotActivatePreviousCode() throws SmsAuthException {
-		String phonenumber = "9";
+		String phonenumber = "+35840123459";
 
 		smsAuthService.sendSms(phonenumber);
 

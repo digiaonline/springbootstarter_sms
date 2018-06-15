@@ -7,7 +7,7 @@
 	<changeSet id="1" author="Stephane Weiss">
 		<createTable tableName="sms_code">
 
-			<column name="phonenumber" type="VARCHAR(10)">
+			<column name="phonenumber" type="VARCHAR(15)">
 				<constraints nullable="false" />
 			</column>
 
@@ -31,7 +31,7 @@
 
 	<changeSet id="2" author="Stephane Weiss">
 		<createIndex indexName="idx_phonenumber" tableName="sms_code">
-			<column name="phonenumber" type="varchar(10)" />
+			<column name="phonenumber" type="varchar(15)" />
 		</createIndex>
 
 		<addPrimaryKey columnNames="phonenumber, code"
