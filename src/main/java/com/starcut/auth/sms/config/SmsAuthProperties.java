@@ -18,6 +18,8 @@ public class SmsAuthProperties {
 
 	private String region;
 
+	private String allowedRegions;
+
 	public String getShortCode() {
 		return shortCode;
 	}
@@ -72,6 +74,14 @@ public class SmsAuthProperties {
 
 	public void setRegion(String region) {
 		this.region = region;
+	}
+
+	public String getAllowedRegions() {
+		return allowedRegions;
+	}
+
+	public void setAllowedRegions(String allowedRegions) {
+		this.allowedRegions = allowedRegions;
 	}
 
 }

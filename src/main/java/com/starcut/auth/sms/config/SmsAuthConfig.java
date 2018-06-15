@@ -1,5 +1,7 @@
 package com.starcut.auth.sms.config;
 
+import java.util.List;
+
 public class SmsAuthConfig {
 
 	private String shortCode;
@@ -15,6 +17,8 @@ public class SmsAuthConfig {
 	private int maxTrialsPerCode;
 
 	private String region;
+
+	private List<Integer> allowedRegion;
 
 	public String getShortCode() {
 		return shortCode;
@@ -70,6 +74,14 @@ public class SmsAuthConfig {
 
 	public void setRegion(String region) {
 		this.region = region;
+	}
+
+	public List<Integer> getAllowedRegion() {
+		return allowedRegion;
+	}
+
+	public void setAllowedRegion(List<Integer> allowedRegion) {
+		this.allowedRegion = allowedRegion;
 	}
 
 }

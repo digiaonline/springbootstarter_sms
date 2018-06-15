@@ -45,7 +45,6 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	@Before
 	public void before() {
 		MockitoAnnotations.initMocks(this);
-
 	}
 
 	@Test(expected = InvalidPhoneNumberException.class)
@@ -56,6 +55,21 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	@Test(expected = InvalidPhoneNumberException.class)
 	public void testSendSmsEmptyNumber() throws SmsAuthException {
 		smsAuthService.sendSms("");
+	}
+
+	@Test(expected = InvalidPhoneNumberException.class)
+	public void testSendSmsInvalidNumber() throws SmsAuthException {
+		smsAuthService.sendSms("0123");
+	}
+
+	@Test(expected = InvalidPhoneNumberException.class)
+	public void testSendSmsWrongRegionNumber() throws SmsAuthException {
+		smsAuthService.sendSms("+39 3 12345678");
+	}
+
+	@Test
+	public void testSendSmsAllowedRegionNumber() throws SmsAuthException {
+		smsAuthService.sendSms("+33 3 12345678");
 	}
 
 	@Test

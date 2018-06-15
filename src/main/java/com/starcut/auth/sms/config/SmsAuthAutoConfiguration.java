@@ -1,5 +1,10 @@
 package com.starcut.auth.sms.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -10,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.starcut.auth.sms.service.SmsAuthService;
 
 @Configuration
@@ -32,8 +38,12 @@ public class SmsAuthAutoConfiguration {
 
 	private final String DEFAULT_REGION = "FI";
 
+	private final List<String> DEFAULT_ALLOWED_REGIONS = new ArrayList<>();
+
 	@Autowired
 	private SmsAuthProperties smsAuthProperties;
+
+	private PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
 	@Bean
 	@ConditionalOnMissingBean
@@ -52,6 +62,8 @@ public class SmsAuthAutoConfiguration {
 		Integer maxTrialsPerCode = smsAuthProperties.getMaxTrialsPerCode() == null ? DEFAULT_MAX_TRIALS_PER_CODE
 				: smsAuthProperties.getMaxTrialsPerCode();
 		String region = smsAuthProperties.getRegion() == null ? DEFAULT_REGION : smsAuthProperties.getRegion();
+		List<String> allowedRegions = smsAuthProperties.getAllowedRegions() == null ? DEFAULT_ALLOWED_REGIONS
+				: Arrays.asList(smsAuthProperties.getAllowedRegions().split(","));
 
 		SmsAuthConfig authSmsConfig = new SmsAuthConfig();
 		authSmsConfig.setShortCode(shortCode);
@@ -61,6 +73,8 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setCodeValidityInMinutes(codeValidityInMinutes);
 		authSmsConfig.setMaxTrialsPerCode(maxTrialsPerCode);
 		authSmsConfig.setRegion(region);
+		authSmsConfig.setAllowedRegion(allowedRegions.stream()
+				.map(code -> phoneNumberUtil.getCountryCodeForRegion(code.trim())).collect(Collectors.toList()));
 
 		return authSmsConfig;
 	}
