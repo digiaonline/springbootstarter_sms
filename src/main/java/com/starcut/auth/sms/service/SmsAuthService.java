@@ -5,7 +5,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -13,13 +17,14 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.starcut.auth.sms.config.SmsAuthConfig;
+import com.starcut.auth.sms.db.PhonenumberLock;
+import com.starcut.auth.sms.db.PhonenumberLockRepository;
 import com.starcut.auth.sms.db.SmsCode;
 import com.starcut.auth.sms.db.SmsCodeId;
 import com.starcut.auth.sms.db.SmsCodeRepository;
 import com.starcut.auth.sms.exceptions.ExpiredCodeException;
 import com.starcut.auth.sms.exceptions.InvalidCodeException;
 import com.starcut.auth.sms.exceptions.InvalidPhoneNumberException;
-import com.starcut.auth.sms.exceptions.SmsAuthException;
 import com.starcut.auth.sms.exceptions.TooManySmsSentException;
 import com.starcut.auth.sms.exceptions.TooManyTrialsException;
 import com.starcut.auth.sms.exceptions.WrongCodeException;
@@ -29,6 +34,9 @@ public class SmsAuthService {
 
 	@Autowired
 	private SmsCodeRepository smsCodeRepository;
+
+	@Autowired
+	private PhonenumberLockRepository phonenumberLockRepository;
 
 	@Autowired
 	private SmsSenderService smsSenderService;
@@ -66,60 +74,98 @@ public class SmsAuthService {
 		return phoneNumberUtil.format(phoneNumber, PhoneNumberFormat.E164);
 	}
 
-	public void sendSms(String number) throws SmsAuthException {
+	@Transactional
+	private boolean lockPhoneNumber(String phoneNumber) {
+		PhonenumberLock lock = phonenumberLockRepository.findById(phoneNumber).orElse(new PhonenumberLock(phoneNumber));
+		if (lock.getLocked())
+			return false;
+		lock.setLocked(true);
+		try {
+			phonenumberLockRepository.saveAndFlush(lock);
+		} catch (DataIntegrityViolationException e) {
+			return false;
+		}
+		return true;
+	}
+
+	@Transactional
+	private void releasePhoneNumber(String phoneNumber) {
+		PhonenumberLock lock = phonenumberLockRepository.findById(phoneNumber)
+				.orElseThrow(EntityNotFoundException::new);
+		lock.setLocked(false);
+		phonenumberLockRepository.saveAndFlush(lock);
+	}
+
+	public void sendSms(String number) throws InvalidPhoneNumberException, TooManySmsSentException {
 		String formattedPhoneNumber = getFormattedPhoneNumber(number);
-		Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
-		List<SmsCode> smsCodes = smsCodeRepository
-				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
-		if (smsCodes.size() >= smsAuthConfig.getMaxSmsPerPeriod()) {
+		if (!lockPhoneNumber(formattedPhoneNumber)) {
 			throw new TooManySmsSentException();
 		}
-		if (!smsCodes.isEmpty()) {
-			SmsCode previousCode = smsCodes.get(0);
-			if (previousCode.getCreatedAt().plus(Duration.ofSeconds(smsAuthConfig.getMinTimeBetweenTwoSmsInSecond()))
-					.compareTo(Instant.now()) > 0) {
+		try {
+			Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
+			List<SmsCode> smsCodes = smsCodeRepository
+					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
+			if (smsCodes.size() >= smsAuthConfig.getMaxSmsPerPeriod()) {
 				throw new TooManySmsSentException();
 			}
-			previousCode.setDisabled(true);
-			smsCodeRepository.save(previousCode);
+			if (!smsCodes.isEmpty()) {
+				SmsCode previousCode = smsCodes.get(0);
+				smsCodeRepository.findByPhonenumberAndCode(formattedPhoneNumber, previousCode.getCode());
+				if (previousCode.getCreatedAt()
+						.plus(Duration.ofSeconds(smsAuthConfig.getMinTimeBetweenTwoSmsInSecond()))
+						.compareTo(Instant.now()) > 0) {
+					throw new TooManySmsSentException();
+				}
+				previousCode.setDisabled(true);
+				smsCodeRepository.save(previousCode);
+			}
+			String code = generateCode();
+
+			smsSenderService.sendSms(formattedPhoneNumber, code);
+
+			SmsCode smsCode = new SmsCode();
+			SmsCodeId id = new SmsCodeId();
+			id.setCode(code);
+			id.setPhonenumber(formattedPhoneNumber);
+			smsCode.setCode(code);
+			smsCode.setPhonenumber(formattedPhoneNumber);
+			smsCode.setId(id);
+			smsCodes.add(smsCode);
+			smsCodeRepository.save(smsCode);
+		} finally {
+			releasePhoneNumber(formattedPhoneNumber);
 		}
-		String code = generateCode();
-
-		smsSenderService.sendSms(formattedPhoneNumber, code);
-
-		SmsCode smsCode = new SmsCode();
-		SmsCodeId id = new SmsCodeId();
-		id.setCode(code);
-		id.setPhonenumber(formattedPhoneNumber);
-		smsCode.setCode(code);
-		smsCode.setPhonenumber(formattedPhoneNumber);
-		smsCode.setId(id);
-		smsCodes.add(smsCode);
-		smsCodeRepository.save(smsCode);
 	}
 
 	public void validateSmsCode(String phonenumber, String code)
 			throws InvalidCodeException, InvalidPhoneNumberException {
 		String formattedPhoneNumber = getFormattedPhoneNumber(phonenumber);
-		Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getCodeValidityInMinutes()));
-		List<SmsCode> smsCodes = smsCodeRepository
-				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
-		if (smsCodes.isEmpty()) {
-			throw new ExpiredCodeException();
-		}
-		SmsCode smsCode = smsCodes.get(0);
-		if (smsCode.getDisabled()) {
-			throw new ExpiredCodeException();
-		}
-		if (smsCode.getTrials() >= smsAuthConfig.getMaxTrialsPerCode()) {
+		if (!lockPhoneNumber(formattedPhoneNumber)) {
 			throw new TooManyTrialsException();
 		}
-		if (!smsCode.getCode().equals(code)) {
-			smsCode.incrementTrials();
-			smsCodeRepository.save(smsCode);
-			throw new WrongCodeException();
+		try {
+			Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getCodeValidityInMinutes()));
+			List<SmsCode> smsCodes = smsCodeRepository
+					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
+			if (smsCodes.isEmpty()) {
+				throw new ExpiredCodeException();
+			}
+			SmsCode smsCode = smsCodes.get(0);
+			if (smsCode.getDisabled()) {
+				throw new ExpiredCodeException();
+			}
+			if (smsCode.getTrials() >= smsAuthConfig.getMaxTrialsPerCode()) {
+				throw new TooManyTrialsException();
+			}
+			if (!smsCode.getCode().equals(code)) {
+				smsCode.incrementTrials();
+				smsCodeRepository.save(smsCode);
+				throw new WrongCodeException();
+			}
+			smsCodeRepository.delete(smsCode);
+		} finally {
+			releasePhoneNumber(formattedPhoneNumber);
 		}
-		smsCodeRepository.delete(smsCode);
 	}
 
 }
