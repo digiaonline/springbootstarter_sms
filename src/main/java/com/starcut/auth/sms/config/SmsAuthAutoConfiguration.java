@@ -17,6 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.starcut.auth.sms.service.SmsAuthService;
+import com.starcut.auth.sms.service.SmsSenderService;
 
 @Configuration
 @ConditionalOnClass(SmsAuthService.class)
@@ -93,5 +94,11 @@ public class SmsAuthAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SmsAuthService smsAuthService(SmsAuthConfig authSmsConfig) {
 		return new SmsAuthService(authSmsConfig);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public SmsSenderService smsSenderService() {
+		return new SmsSenderService();
 	}
 }
