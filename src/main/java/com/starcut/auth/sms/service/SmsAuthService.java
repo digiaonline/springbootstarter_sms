@@ -56,7 +56,8 @@ public class SmsAuthService {
 		if (!phoneNumberUtil.isValidNumber(phoneNumber)) {
 			throw new InvalidPhoneNumberException();
 		}
-		if (!smsAuthConfig.getAllowedRegion().isEmpty() && !smsAuthConfig.getAllowedRegion().contains(phoneNumber.getCountryCode())) {
+		if (!smsAuthConfig.getAllowedRegion().isEmpty()
+				&& !smsAuthConfig.getAllowedRegion().contains(phoneNumber.getCountryCode())) {
 			throw new InvalidPhoneNumberException();
 		}
 		return phoneNumberUtil.format(phoneNumber, PhoneNumberFormat.E164);

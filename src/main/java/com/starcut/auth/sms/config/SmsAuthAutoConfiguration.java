@@ -40,6 +40,8 @@ public class SmsAuthAutoConfiguration {
 
 	private final List<String> DEFAULT_ALLOWED_REGIONS = new ArrayList<>();
 
+	private final String DEFAULT_SENDER_ID = "Starcut";
+
 	@Autowired
 	private SmsAuthProperties smsAuthProperties;
 
@@ -64,6 +66,7 @@ public class SmsAuthAutoConfiguration {
 		String region = smsAuthProperties.getRegion() == null ? DEFAULT_REGION : smsAuthProperties.getRegion();
 		List<String> allowedRegions = smsAuthProperties.getAllowedRegions() == null ? DEFAULT_ALLOWED_REGIONS
 				: Arrays.asList(smsAuthProperties.getAllowedRegions().split(","));
+		String senderId = smsAuthProperties.getSenderId() == null ? DEFAULT_SENDER_ID : smsAuthProperties.getSenderId();
 
 		SmsAuthConfig authSmsConfig = new SmsAuthConfig();
 		authSmsConfig.setShortCode(shortCode);
@@ -75,6 +78,7 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setRegion(region);
 		authSmsConfig.setAllowedRegion(allowedRegions.stream()
 				.map(code -> phoneNumberUtil.getCountryCodeForRegion(code.trim())).collect(Collectors.toList()));
+		authSmsConfig.setSenderId(senderId);
 
 		return authSmsConfig;
 	}

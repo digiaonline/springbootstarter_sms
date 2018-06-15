@@ -18,6 +18,8 @@ public class SmsAuthConfig {
 
 	private String region;
 
+	private String senderId;
+
 	private List<Integer> allowedRegion;
 
 	public String getShortCode() {
@@ -82,6 +84,14 @@ public class SmsAuthConfig {
 
 	public void setAllowedRegion(List<Integer> allowedRegion) {
 		this.allowedRegion = allowedRegion;
+	}
+
+	public String getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}
 
 }
