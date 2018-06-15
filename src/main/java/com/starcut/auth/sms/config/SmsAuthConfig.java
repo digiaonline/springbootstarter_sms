@@ -22,6 +22,8 @@ public class SmsAuthConfig {
 
 	private List<Integer> allowedRegion;
 
+	private int minTimeBetweenTwoSmsInSecond;
+
 	public String getShortCode() {
 		return shortCode;
 	}
@@ -92,6 +94,14 @@ public class SmsAuthConfig {
 
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
+	}
+
+	public int getMinTimeBetweenTwoSmsInSecond() {
+		return minTimeBetweenTwoSmsInSecond;
+	}
+
+	public void setMinTimeBetweenTwoSmsInSecond(int minTimeBetweenTwoSmsInSecond) {
+		this.minTimeBetweenTwoSmsInSecond = minTimeBetweenTwoSmsInSecond;
 	}
 
 }

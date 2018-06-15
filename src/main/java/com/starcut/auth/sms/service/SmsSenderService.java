@@ -22,7 +22,7 @@ public class SmsSenderService {
 	private AmazonSNS amazonSNSClient = AmazonSNSClientBuilder.defaultClient();
 	
 	private Logger LOGGER = LoggerFactory.getLogger(SmsSenderService.class);
-	
+
 	private Map<String, MessageAttributeValue> getSmsAttributes() {
 		
 		Map<String, MessageAttributeValue> smsAttributes =
@@ -37,6 +37,7 @@ public class SmsSenderService {
 	}
 	
 	public void sendSms(String phoneNumber, String message) {
+		System.exit(1);
 		PublishResult result = amazonSNSClient.publish(new PublishRequest()
                 .withMessage(message)
                 .withPhoneNumber(phoneNumber)

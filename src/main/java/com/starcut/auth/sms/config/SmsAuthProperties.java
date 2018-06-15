@@ -22,6 +22,8 @@ public class SmsAuthProperties {
 
 	private String senderId;
 
+	private Integer minTimeBetweenTwoSmsInSeconds;
+
 	public String getShortCode() {
 		return shortCode;
 	}
@@ -92,6 +94,14 @@ public class SmsAuthProperties {
 
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
+	}
+
+	public Integer getMinTimeBetweenTwoSmsInSeconds() {
+		return minTimeBetweenTwoSmsInSeconds;
+	}
+
+	public void setMinTimeBetweenTwoSmsInSeconds(Integer minTimeBetweenTwoSmsInSeconds) {
+		this.minTimeBetweenTwoSmsInSeconds = minTimeBetweenTwoSmsInSeconds;
 	}
 
 }

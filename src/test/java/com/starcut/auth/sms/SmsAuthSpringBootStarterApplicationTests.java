@@ -95,6 +95,12 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		String phonenumber = "+35840123451";
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
 			smsAuthService.sendSms(phonenumber);
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -114,6 +120,12 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
 			smsAuthService.sendSms(phonenumber);
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		// Set the date of one of the code to be outside of the period
@@ -170,6 +182,12 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		smsAuthService.sendSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		SmsCode smsCode = smsCodes.iterator().next();
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		smsAuthService.sendSms(phonenumber);
 		smsCode = smsCodeRepository.findByPhonenumberAndCode(phonenumber, smsCode.getCode()).get();
 
@@ -200,6 +218,16 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	}
 
 	/*
+	 * Test that two messages cannot be sent within the same second
+	 */
+	@Test(expected = TooManySmsSentException.class)
+	public void testCannotFloodANumber() throws SmsAuthException {
+		String phonenumber = "+35840123460";
+		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendSms(phonenumber);
+	}
+
+	/*
 	 * Test that correct code do not enable the previous one to be used even if it
 	 * has the right code
 	 */
@@ -210,7 +238,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		smsAuthService.sendSms(phonenumber);
 
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(1500);
 		} catch (InterruptedException e1) {
 		}
 		smsAuthService.sendSms(phonenumber);

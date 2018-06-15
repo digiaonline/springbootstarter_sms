@@ -30,6 +30,9 @@ public class SmsAuthService {
 	@Autowired
 	private SmsCodeRepository smsCodeRepository;
 
+	@Autowired
+	private SmsSenderService smsSenderService;
+
 	private SmsAuthConfig smsAuthConfig;
 
 	private SecureRandom secureRandom = new SecureRandom();
@@ -73,10 +76,17 @@ public class SmsAuthService {
 		}
 		if (!smsCodes.isEmpty()) {
 			SmsCode previousCode = smsCodes.get(0);
+			if (previousCode.getCreatedAt().plus(Duration.ofSeconds(smsAuthConfig.getMinTimeBetweenTwoSmsInSecond()))
+					.compareTo(Instant.now()) > 0) {
+				throw new TooManySmsSentException();
+			}
 			previousCode.setDisabled(true);
 			smsCodeRepository.save(previousCode);
 		}
 		String code = generateCode();
+
+		smsSenderService.sendSms(formattedPhoneNumber, code);
+
 		SmsCode smsCode = new SmsCode();
 		SmsCodeId id = new SmsCodeId();
 		id.setCode(code);

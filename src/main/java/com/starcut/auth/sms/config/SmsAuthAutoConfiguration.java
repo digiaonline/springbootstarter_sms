@@ -26,21 +26,23 @@ import com.starcut.auth.sms.service.SmsAuthService;
 @EnableJpaRepositories("com.starcut.auth.sms.db")
 public class SmsAuthAutoConfiguration {
 
-	private final int DEFAULT_MAX_SMS_PER_PERIOD = 5;
+	private static final int DEFAULT_MIN_TIME_BETWEEN_TWO_SMS_IN_SECONDS = 1;
 
-	private final int DEFAULT_PERIOD_IN_MINUTES = 24 * 60; // 1 Day
+	private static final int DEFAULT_MAX_SMS_PER_PERIOD = 5;
 
-	private final int DEFAULT_CODE_VALIDITY_IN_MINUTES = 10;
+	private static final int DEFAULT_PERIOD_IN_MINUTES = 24 * 60; // 1 Day
 
-	private final int DEFAULT_CODE_LENGTH = 6;
+	private static final int DEFAULT_CODE_VALIDITY_IN_MINUTES = 10;
 
-	private final int DEFAULT_MAX_TRIALS_PER_CODE = 3;
+	private static final int DEFAULT_CODE_LENGTH = 6;
 
-	private final String DEFAULT_REGION = "FI";
+	private static final int DEFAULT_MAX_TRIALS_PER_CODE = 3;
 
-	private final List<String> DEFAULT_ALLOWED_REGIONS = new ArrayList<>();
+	private static final String DEFAULT_REGION = "FI";
 
-	private final String DEFAULT_SENDER_ID = "Starcut";
+	private static final List<String> DEFAULT_ALLOWED_REGIONS = new ArrayList<>();
+
+	private static final String DEFAULT_SENDER_ID = "Starcut";
 
 	@Autowired
 	private SmsAuthProperties smsAuthProperties;
@@ -67,6 +69,9 @@ public class SmsAuthAutoConfiguration {
 		List<String> allowedRegions = smsAuthProperties.getAllowedRegions() == null ? DEFAULT_ALLOWED_REGIONS
 				: Arrays.asList(smsAuthProperties.getAllowedRegions().split(","));
 		String senderId = smsAuthProperties.getSenderId() == null ? DEFAULT_SENDER_ID : smsAuthProperties.getSenderId();
+		Integer minTimeBetweenTwoSmsInSecond = smsAuthProperties.getMinTimeBetweenTwoSmsInSeconds() == null
+				? DEFAULT_MIN_TIME_BETWEEN_TWO_SMS_IN_SECONDS
+				: smsAuthProperties.getMinTimeBetweenTwoSmsInSeconds();
 
 		SmsAuthConfig authSmsConfig = new SmsAuthConfig();
 		authSmsConfig.setShortCode(shortCode);
@@ -79,6 +84,7 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setAllowedRegion(allowedRegions.stream()
 				.map(code -> phoneNumberUtil.getCountryCodeForRegion(code.trim())).collect(Collectors.toList()));
 		authSmsConfig.setSenderId(senderId);
+		authSmsConfig.setMinTimeBetweenTwoSmsInSecond(minTimeBetweenTwoSmsInSecond);
 
 		return authSmsConfig;
 	}
