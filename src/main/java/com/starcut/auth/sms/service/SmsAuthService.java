@@ -105,7 +105,8 @@ public class SmsAuthService {
 			Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
 			List<SmsCode> smsCodes = smsCodeRepository
 					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
-			if (smsCodes.size() >= smsAuthConfig.getMaxSmsPerPeriod()) {
+			long nbUnvalidated = smsCodes.stream().filter(smsCode -> smsCode.getValidated()).count();
+			if (nbUnvalidated >= smsAuthConfig.getMaxSmsPerPeriod()) {
 				throw new TooManySmsSentException();
 			}
 			if (!smsCodes.isEmpty()) {
@@ -116,8 +117,6 @@ public class SmsAuthService {
 						.compareTo(Instant.now()) > 0) {
 					throw new TooManySmsSentException();
 				}
-				previousCode.setDisabled(true);
-				smsCodeRepository.save(previousCode);
 			}
 			String code = generateCode();
 
@@ -151,7 +150,7 @@ public class SmsAuthService {
 				throw new ExpiredCodeException();
 			}
 			SmsCode smsCode = smsCodes.get(0);
-			if (smsCode.getDisabled()) {
+			if (smsCode.getValidated()) {
 				throw new ExpiredCodeException();
 			}
 			if (smsCode.getTrials() >= smsAuthConfig.getMaxTrialsPerCode()) {
@@ -162,7 +161,8 @@ public class SmsAuthService {
 				smsCodeRepository.save(smsCode);
 				throw new WrongCodeException();
 			}
-			smsCodeRepository.delete(smsCode);
+			smsCode.setValidated(true);
+			smsCodeRepository.save(smsCode);
 		} finally {
 			releasePhoneNumber(formattedPhoneNumber);
 		}

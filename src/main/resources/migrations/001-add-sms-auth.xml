@@ -19,7 +19,7 @@
 				<constraints nullable="false" />
 			</column>
 
-			<column name="disabled" type="BOOLEAN" defaultValue="false">
+			<column name="validated" type="BOOLEAN" defaultValue="false">
 				<constraints nullable="false" />
 			</column>
 

@@ -176,7 +176,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	/* test that a code is disabled if a new one is created */
 	@Test
-	public void testNewCodeDisablePrevious() throws SmsAuthException {
+	public void testSuccessfulVerificationMarksSmsAsValidated() throws SmsAuthException {
 		String phonenumber = "+35840123457";
 
 		smsAuthService.sendSms(phonenumber);
@@ -188,10 +188,10 @@ public class SmsAuthSpringBootStarterApplicationTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
 		smsCode = smsCodeRepository.findByPhonenumberAndCode(phonenumber, smsCode.getCode()).get();
 
-		assertTrue(smsCode.getDisabled());
+		assertTrue(smsCode.getValidated());
 	}
 
 	/*
@@ -246,10 +246,12 @@ public class SmsAuthSpringBootStarterApplicationTests {
 				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, Instant.MIN).get(0);
 		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
 
-		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
-		assertEquals(1, smsCodes.size());
+		Collection<SmsCode> smsCodes = smsCodeRepository
+				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber,
+						Instant.MIN);
+		assertEquals(2, smsCodes.size());
 		smsCode = smsCodes.iterator().next();
-		assertTrue(smsCode.getDisabled());
+		assertTrue(smsCode.getValidated());
 
 		try {
 			smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());

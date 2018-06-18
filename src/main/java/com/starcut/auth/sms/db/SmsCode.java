@@ -26,7 +26,7 @@ public class SmsCode {
 	@Column(insertable = false, updatable = false)
 	private String code;
 
-	private Boolean disabled = false;
+	private Boolean validated = false;
 
 	public Instant getCreatedAt() {
 		return createdAt;
@@ -68,12 +68,12 @@ public class SmsCode {
 		this.id = id;
 	}
 
-	public Boolean getDisabled() {
-		return disabled;
+	public Boolean getValidated() {
+		return validated;
 	}
 
-	public void setDisabled(Boolean disabled) {
-		this.disabled = disabled;
+	public void setValidated(Boolean validated) {
+		this.validated = validated;
 	}
 
 	@Transient
