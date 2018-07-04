@@ -22,6 +22,8 @@ public class SmsAuthProperties {
 
 	private String senderId;
 
+	private Integer transferDelayInHours;
+
 	private Integer minTimeBetweenTwoSmsInSeconds;
 
 	public String getShortCode() {
@@ -102,6 +104,14 @@ public class SmsAuthProperties {
 
 	public void setMinTimeBetweenTwoSmsInSeconds(Integer minTimeBetweenTwoSmsInSeconds) {
 		this.minTimeBetweenTwoSmsInSeconds = minTimeBetweenTwoSmsInSeconds;
+	}
+
+	public Integer getTransferDelayInHours() {
+		return transferDelayInHours;
+	}
+
+	public void setTransferDelayInHours(Integer transferDelayInHours) {
+		this.transferDelayInHours = transferDelayInHours;
 	}
 
 }

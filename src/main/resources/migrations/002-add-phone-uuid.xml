@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet id="1" author="Stephane Weiss">
+		<createTable tableName="phone_uuid">
+			<column name="phone_number" type="VARCHAR(15)">
+				<constraints primaryKey="true" />
+			</column>
+
+			<column name="uuid" type="VARCHAR(32)">
+				<constraints nullable="false" />
+			</column>
+			
+			<column name="new_uuid" type="VARCHAR(32)">
+				<constraints nullable="true" />
+			</column>
+			
+			<column name="change_requested_at" type="DATETIME" defaultValue="now()">
+				<constraints nullable="true" />
+			</column>
+
+			<column name="created_at" type="DATETIME" defaultValue="now()">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>

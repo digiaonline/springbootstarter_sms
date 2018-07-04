@@ -16,6 +16,8 @@ public class SmsAuthConfig {
 
 	private int maxTrialsPerCode;
 
+	private int transferDelayInHours;
+
 	private String region;
 
 	private String senderId;
@@ -104,4 +106,11 @@ public class SmsAuthConfig {
 		this.minTimeBetweenTwoSmsInSecond = minTimeBetweenTwoSmsInSecond;
 	}
 
+	public int getTransferDelayInHours() {
+		return transferDelayInHours;
+	}
+
+	public void setTransferDelayInHours(int transferDelayInHours) {
+		this.transferDelayInHours = transferDelayInHours;
+	}
 }

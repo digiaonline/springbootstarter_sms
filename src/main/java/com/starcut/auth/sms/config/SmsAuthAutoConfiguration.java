@@ -39,6 +39,8 @@ public class SmsAuthAutoConfiguration {
 
 	private static final int DEFAULT_MAX_TRIALS_PER_CODE = 3;
 
+	private static final int DEFAULT_TRANSFER_DELAY_IN_HOURS = 24;
+
 	private static final String DEFAULT_REGION = "FI";
 
 	private static final List<String> DEFAULT_ALLOWED_REGIONS = new ArrayList<>();
@@ -66,6 +68,9 @@ public class SmsAuthAutoConfiguration {
 				: smsAuthProperties.getCodeValidityInMinutes();
 		Integer maxTrialsPerCode = smsAuthProperties.getMaxTrialsPerCode() == null ? DEFAULT_MAX_TRIALS_PER_CODE
 				: smsAuthProperties.getMaxTrialsPerCode();
+		Integer transferDelayInHours = smsAuthProperties.getTransferDelayInHours() == null
+				? DEFAULT_TRANSFER_DELAY_IN_HOURS
+				: smsAuthProperties.getTransferDelayInHours();
 		String region = smsAuthProperties.getRegion() == null ? DEFAULT_REGION : smsAuthProperties.getRegion();
 		List<String> allowedRegions = smsAuthProperties.getAllowedRegions() == null ? DEFAULT_ALLOWED_REGIONS
 				: Arrays.asList(smsAuthProperties.getAllowedRegions().split(","));
@@ -85,6 +90,7 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setAllowedRegion(allowedRegions.stream()
 				.map(code -> phoneNumberUtil.getCountryCodeForRegion(code.trim())).collect(Collectors.toList()));
 		authSmsConfig.setSenderId(senderId);
+		authSmsConfig.setTransferDelayInHours(transferDelayInHours);
 		authSmsConfig.setMinTimeBetweenTwoSmsInSecond(minTimeBetweenTwoSmsInSecond);
 
 		return authSmsConfig;
