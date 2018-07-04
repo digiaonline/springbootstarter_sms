@@ -1,4 +1,4 @@
-package com.starcut.auth.sms.db;
+package com.starcut.auth.sms.db.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

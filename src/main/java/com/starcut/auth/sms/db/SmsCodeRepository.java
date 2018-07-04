@@ -7,6 +7,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.starcut.auth.sms.db.entity.SmsCode;
+import com.starcut.auth.sms.db.entity.SmsCodeId;
+
 public interface SmsCodeRepository extends JpaRepository<SmsCode, SmsCodeId> {
 
 	public Collection<SmsCode> findAllByPhonenumber(String phonenumber);
