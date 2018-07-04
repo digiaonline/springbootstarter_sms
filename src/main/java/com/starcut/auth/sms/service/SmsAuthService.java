@@ -97,6 +97,11 @@ public class SmsAuthService {
 	}
 
 	public void sendSms(String number) throws InvalidPhoneNumberException, TooManySmsSentException {
+		sendSms(number, "%s");
+	}
+
+	public void sendSms(String number, String messageTemplate)
+			throws InvalidPhoneNumberException, TooManySmsSentException {
 		String formattedPhoneNumber = getFormattedPhoneNumber(number);
 		if (!lockPhoneNumber(formattedPhoneNumber)) {
 			throw new TooManySmsSentException();
@@ -119,8 +124,9 @@ public class SmsAuthService {
 				}
 			}
 			String code = generateCode();
+			String content = String.format(messageTemplate, code);
 
-			smsSenderService.sendSms(formattedPhoneNumber, code);
+			smsSenderService.sendSms(formattedPhoneNumber, content);
 
 			SmsCode smsCode = new SmsCode();
 			SmsCodeId id = new SmsCodeId();
