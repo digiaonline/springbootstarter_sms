@@ -23,6 +23,10 @@
 				<constraints nullable="false" />
 			</column>
 
+			<column name="type" type="VARCHAR(16)">
+				<constraints nullable="false" />
+			</column>
+
 			<column name="created_at" type="DATETIME" defaultValue="now()">
 				<constraints nullable="false" />
 			</column>
@@ -37,7 +41,7 @@
 				<constraints nullable="false" />
 			</column>
 		</createTable>
-		
+
 	</changeSet>
 
 	<changeSet id="2" author="Stephane Weiss">

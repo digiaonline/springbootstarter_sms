@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.starcut.auth.sms.db.entity.type.SmsCodeType;
+
 @Entity
 public class SmsCode {
 
@@ -27,6 +29,8 @@ public class SmsCode {
 	private String code;
 
 	private Boolean validated = false;
+
+	private SmsCodeType type;
 
 	public Instant getCreatedAt() {
 		return createdAt;
@@ -74,6 +78,14 @@ public class SmsCode {
 
 	public void setValidated(Boolean validated) {
 		this.validated = validated;
+	}
+
+	public SmsCodeType getType() {
+		return type;
+	}
+
+	public void setType(SmsCodeType type) {
+		this.type = type;
 	}
 
 	@Transient
