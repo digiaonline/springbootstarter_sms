@@ -1,11 +1,14 @@
 package com.starcut.auth.sms;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +19,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.starcut.auth.sms.config.SmsAuthConfig;
-import com.starcut.auth.sms.db.SmsCode;
+import com.starcut.auth.sms.db.PhoneUuidRepository;
 import com.starcut.auth.sms.db.SmsCodeRepository;
+import com.starcut.auth.sms.db.entity.PhoneUuid;
+import com.starcut.auth.sms.db.entity.SmsCode;
+import com.starcut.auth.sms.db.entity.SmsCodeId;
+import com.starcut.auth.sms.db.entity.type.SmsCodeType;
 import com.starcut.auth.sms.exceptions.ExpiredCodeException;
 import com.starcut.auth.sms.exceptions.InvalidCodeException;
 import com.starcut.auth.sms.exceptions.InvalidPhoneNumberException;
@@ -34,10 +43,14 @@ import com.starcut.auth.sms.service.SmsSenderService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestConfiguration(value = "com.starcut.auth.sms.config.SmsAuthAutoConfiguration")
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Autowired
 	private SmsCodeRepository smsCodeRepository;
+
+	@Autowired
+	private PhoneUuidRepository phoneUuidRepository;
 
 	@Autowired
 	private SmsAuthConfig smsAuthConfig;
@@ -56,27 +69,27 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 	@Test(expected = InvalidPhoneNumberException.class)
 	public void testSendSmsNullNumber() throws SmsAuthException {
-		smsAuthService.sendSms(null);
+		smsAuthService.sendValidationSms(null);
 	}
 
 	@Test(expected = InvalidPhoneNumberException.class)
 	public void testSendSmsEmptyNumber() throws SmsAuthException {
-		smsAuthService.sendSms("");
+		smsAuthService.sendValidationSms("");
 	}
 
 	@Test(expected = InvalidPhoneNumberException.class)
 	public void testSendSmsInvalidNumber() throws SmsAuthException {
-		smsAuthService.sendSms("0123");
+		smsAuthService.sendValidationSms("0123");
 	}
 
 	@Test(expected = InvalidPhoneNumberException.class)
 	public void testSendSmsWrongRegionNumber() throws SmsAuthException {
-		smsAuthService.sendSms("+39 3 12345678");
+		smsAuthService.sendValidationSms("+39 3 12345678");
 	}
 
 	@Test
 	public void testSendSmsAllowedRegionNumber() throws SmsAuthException {
-		smsAuthService.sendSms("+33 3 12345678");
+		smsAuthService.sendValidationSms("+33 3 12345678");
 	}
 
 	@Test
@@ -85,7 +98,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 
 		Collection<SmsCode> codes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		assertEquals(0L, codes.size());
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		codes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		assertEquals(1L, codes.size());
 	}
@@ -94,7 +107,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	public void testCanSendMaxNumberOfSms() throws SmsAuthException {
 		String phonenumber = "+35840123451";
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
-			smsAuthService.sendSms(phonenumber);
+			smsAuthService.sendValidationSms(phonenumber);
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -109,9 +122,9 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		String phonenumber = "+35840123452";
 
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
-			smsAuthService.sendSms(phonenumber);
+			smsAuthService.sendValidationSms(phonenumber);
 		}
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 	}
 
 	@Test
@@ -119,7 +132,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		String phonenumber = "+35840123453";
 
 		for (int i = 0; i < smsAuthConfig.getMaxSmsPerPeriod(); i++) {
-			smsAuthService.sendSms(phonenumber);
+			smsAuthService.sendValidationSms(phonenumber);
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -134,30 +147,30 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		smsCode.setCreatedAt(Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes() + 1)));
 		smsCodeRepository.save(smsCode);
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 	}
 
 	@Test
 	public void testVerifySMS() throws SmsAuthException {
 		String phonenumber = "+35840123454";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 	}
 
 	@Test(expected = InvalidCodeException.class)
 	public void testVerifySMSOnlyValidOnce() throws SmsAuthException {
 		String phonenumber = "+35840123455";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 	}
 
 	/* test that expired codes are invalid, even if the code is right */
@@ -165,13 +178,13 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	public void testExpiredCodeRaiseException() throws SmsAuthException {
 		String phonenumber = "+35840123456";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 		smsCode.setCreatedAt(Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getCodeValidityInMinutes() + 1)));
 		smsCodeRepository.save(smsCode);
 
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 	}
 
 	/* test that a code is disabled if a new one is created */
@@ -179,7 +192,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	public void testSuccessfulVerificationMarksSmsAsValidated() throws SmsAuthException {
 		String phonenumber = "+35840123457";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 		try {
@@ -188,7 +201,7 @@ public class SmsAuthSpringBootStarterApplicationTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 		smsCode = smsCodeRepository.findByPhonenumberAndCode(phonenumber, smsCode.getCode()).get();
 
 		assertTrue(smsCode.getValidated());
@@ -203,18 +216,18 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		String phonenumber = "040123458";
 		String formattedPhoneNumber = "+35840123458";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(formattedPhoneNumber);
 		SmsCode smsCode = smsCodes.iterator().next();
 
 		for (int i = 0; i < smsAuthConfig.getMaxTrialsPerCode(); i++) {
 			try {
-				smsAuthService.validateSmsCode(phonenumber, "wrongcode");
+				smsAuthService.verifyValidationSmsCode(phonenumber, "wrongcode");
 			} catch (WrongCodeException e) {
 
 			}
 		}
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 	}
 
 	/*
@@ -223,8 +236,10 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	@Test(expected = TooManySmsSentException.class)
 	public void testCannotFloodANumber() throws SmsAuthException {
 		String phonenumber = "+35840123460";
-		smsAuthService.sendSms(phonenumber);
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
+	}
+
 	}
 
 	/*
@@ -235,26 +250,25 @@ public class SmsAuthSpringBootStarterApplicationTests {
 	public void testSuccessfulVerificationDoNotActivatePreviousCode() throws SmsAuthException {
 		String phonenumber = "+35840123459";
 
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 
 		try {
 			Thread.sleep(1500);
 		} catch (InterruptedException e1) {
 		}
-		smsAuthService.sendSms(phonenumber);
+		smsAuthService.sendValidationSms(phonenumber);
 		SmsCode smsCode = smsCodeRepository
 				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, Instant.MIN).get(0);
-		smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+		smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 
 		Collection<SmsCode> smsCodes = smsCodeRepository
-				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber,
-						Instant.MIN);
+				.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phonenumber, Instant.MIN);
 		assertEquals(2, smsCodes.size());
 		smsCode = smsCodes.iterator().next();
 		assertTrue(smsCode.getValidated());
 
 		try {
-			smsAuthService.validateSmsCode(phonenumber, smsCode.getCode());
+			smsAuthService.verifyValidationSmsCode(phonenumber, smsCode.getCode());
 		} catch (ExpiredCodeException e) {
 			return;
 		}
