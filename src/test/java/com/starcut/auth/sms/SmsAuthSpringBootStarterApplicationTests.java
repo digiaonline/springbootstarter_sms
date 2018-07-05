@@ -260,4 +260,171 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		}
 		assertTrue(false);
 	}
+
+	@Test
+	public void testSendSecureSMSDoesNotRegisterUuid() throws InvalidPhoneNumberException, TooManySmsSentException {
+		String phonenumber = "+35840123459";
+		smsAuthService.sendSmsSecure(phonenumber, "fakeuuid");
+		PhoneUuid phoneUuid = phoneUuidRepository.findById(phonenumber).orElse(null);
+		assertNull(phoneUuid);
+	}
+
+	@Test
+	public void testVerifySecureRegisterUuid()
+			throws InvalidPhoneNumberException, TooManySmsSentException, InvalidCodeException {
+		String phonenumber = "+35840123459";
+		smsAuthService.sendSmsSecure(phonenumber, "fakeuuid");
+		List<SmsCode> smsCodes = (List<SmsCode>) smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(1, smsCodes.size());
+		SmsCode smsCode = smsCodes.get(0);
+		assertEquals(SmsCodeType.VALIDATION, smsCode.getType());
+		String code = smsCode.getCode();
+		smsAuthService.validateSmsCodeSecure(phonenumber, "UUID", code);
+		PhoneUuid phoneUuid = phoneUuidRepository.findById(phonenumber).orElse(null);
+		assertNotNull(phoneUuid);
+		assertEquals("UUID", phoneUuid.getUuid());
+		assertNull(phoneUuid.getNewUuid());
+		assertNull(phoneUuid.getChangeRequestedAt());
+
+	}
+
+	@Test
+	public void testInvalidUuidPreventSmsSending() throws InvalidPhoneNumberException, TooManySmsSentException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		smsAuthService.sendSmsSecure(phonenumber, "wrongUUID");
+		List<SmsCode> smsCodes = (List<SmsCode>) smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(0, smsCodes.size());
+	}
+
+	@Test
+	public void testInvalidUuidPreventSmsVerification() throws InvalidPhoneNumberException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		SmsCode smsCode = new SmsCode();
+		SmsCodeId smsCodeId = new SmsCodeId();
+		smsCodeId.setCode("correct code");
+		smsCodeId.setPhonenumber(phonenumber);
+		smsCode.setId(smsCodeId);
+		smsCode.setType(SmsCodeType.VALIDATION);
+		smsCodeRepository.save(smsCode);
+		try {
+			smsAuthService.validateSmsCodeSecure(phonenumber, "wrong UUID", "wrong code");
+			assertTrue(false);
+		} catch (InvalidCodeException e) {
+		}
+		try {
+			smsAuthService.validateSmsCodeSecure(phonenumber, "wrong UUID", "correct code");
+			assertTrue(false);
+		} catch (InvalidCodeException e) {
+		}
+	}
+
+	@Test
+	public void testValidUuidAllowSmsSending() throws InvalidPhoneNumberException, TooManySmsSentException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("correct UUID");
+		phoneUuidRepository.save(phoneUuid);
+		smsAuthService.sendSmsSecure(phonenumber, "correct UUID");
+		List<SmsCode> smsCodes = (List<SmsCode>) smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(1, smsCodes.size());
+	}
+
+	@Test
+	public void testValidUuidAllowSmsVerification() throws InvalidPhoneNumberException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		SmsCode smsCode = new SmsCode();
+		SmsCodeId smsCodeId = new SmsCodeId();
+		smsCodeId.setCode("correct code");
+		smsCodeId.setPhonenumber(phonenumber);
+		smsCode.setId(smsCodeId);
+		smsCode.setType(SmsCodeType.VALIDATION);
+		smsCodeRepository.save(smsCode);
+
+		try {
+			smsAuthService.validateSmsCodeSecure(phonenumber, "UUID", "wrong code");
+			assertTrue(false);
+		} catch (InvalidCodeException e) {
+		}
+		try {
+			smsAuthService.validateSmsCodeSecure(phonenumber, "UUID", "correct code");
+		} catch (InvalidCodeException e) {
+			assertTrue(false);
+		}
+	}
+
+	@Test
+	public void testSendResetSms() throws InvalidPhoneNumberException, TooManySmsSentException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		smsAuthService.sendResetSms(phonenumber);
+		List<SmsCode> smsCodes = (List<SmsCode>) smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(1, smsCodes.size());
+		SmsCode smsCode = smsCodes.get(0);
+		assertEquals(SmsCodeType.RESET, smsCode.getType());
+		phoneUuid = phoneUuidRepository.findById(phonenumber).orElse(null);
+		assertEquals("UUID", phoneUuid.getUuid());
+		assertNull(phoneUuid.getNewUuid());
+		assertNull(phoneUuid.getChangeRequestedAt());
+	}
+
+	@Test
+	public void testValidatingResetUuidDoesNotRequireValidUuid()
+			throws InvalidCodeException, InvalidPhoneNumberException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		SmsCode smsCode = new SmsCode();
+		SmsCodeId smsCodeId = new SmsCodeId();
+		smsCodeId.setCode("correct code");
+		;
+		smsCodeId.setPhonenumber(phonenumber);
+		smsCode.setId(smsCodeId);
+		smsCode.setType(SmsCodeType.RESET);
+		smsCodeRepository.save(smsCode);
+		smsAuthService.verifyResetSms(phonenumber, "new UUID", "correct code", "Warning message");
+		List<SmsCode> smsCodes = (List<SmsCode>) smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(1, smsCodes.size());
+		smsCode = smsCodes.get(0);
+		assertEquals(SmsCodeType.RESET, smsCode.getType());
+		phoneUuid = phoneUuidRepository.findById(phonenumber).orElse(null);
+		assertEquals("UUID", phoneUuid.getUuid());
+		assertEquals("new UUID", phoneUuid.getNewUuid());
+		assertNotNull(phoneUuid.getChangeRequestedAt());
+	}
+
+	@Test(expected = InvalidCodeException.class)
+	public void testResetSMSCannotBeUsedForLogin() throws InvalidCodeException, InvalidPhoneNumberException {
+		String phonenumber = "+35840123459";
+		PhoneUuid phoneUuid = new PhoneUuid();
+		phoneUuid.setPhoneNumber(phonenumber);
+		phoneUuid.setUuid("UUID");
+		phoneUuidRepository.save(phoneUuid);
+		SmsCode smsCode = new SmsCode();
+		SmsCodeId smsCodeId = new SmsCodeId();
+		smsCodeId.setCode("correct code");
+		;
+		smsCodeId.setPhonenumber(phonenumber);
+		smsCode.setId(smsCodeId);
+		smsCode.setType(SmsCodeType.RESET);
+		smsCodeRepository.save(smsCode);
+		smsAuthService.validateSmsCodeSecure(phonenumber, "UUID", "correct code");
+	}
 }
