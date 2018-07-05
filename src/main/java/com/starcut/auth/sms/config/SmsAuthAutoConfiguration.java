@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +19,6 @@ import com.starcut.auth.sms.service.SmsAuthService;
 import com.starcut.auth.sms.service.SmsSenderService;
 
 @Configuration
-@ConditionalOnClass(SmsAuthService.class)
 @EnableConfigurationProperties(SmsAuthProperties.class)
 @ComponentScan
 @EntityScan("com.starcut.auth.sms.db")
