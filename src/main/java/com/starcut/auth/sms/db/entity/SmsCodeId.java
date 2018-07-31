@@ -29,4 +29,18 @@ public class SmsCodeId implements Serializable{
 		this.code = code;
 	}
 
+	@Override
+	public boolean equals(Object arg0) {
+		if (arg0 == null || !(arg0 instanceof SmsCodeId)) {
+			return false;
+		}
+		SmsCodeId other = (SmsCodeId) arg0;
+		return this.phonenumber.equals(other.getPhonenumber()) && this.code.equals(other.getCode());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.phonenumber.hashCode() + this.getCode().hashCode() * 31;
+	}
+
 }
