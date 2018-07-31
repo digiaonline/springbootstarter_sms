@@ -240,6 +240,92 @@ public class SmsAuthSpringBootStarterApplicationTests {
 		smsAuthService.sendValidationSms(phonenumber);
 	}
 
+	/*
+	 * Test that two messages cannot be sent to the same number within the same
+	 * second
+	 */
+	@Test
+	public void testCannotFloodANumberUsingThreads() {
+		final String phonenumber = "+35840123461";
+
+		Thread t1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					smsAuthService.sendValidationSms(phonenumber);
+				} catch (SmsAuthException e) {
+				}
+
+			}
+		});
+		Thread t2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					smsAuthService.sendValidationSms(phonenumber);
+				} catch (SmsAuthException e) {
+				}
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber);
+		assertEquals(1, smsCodes.size());
+	}
+
+	/*
+	 * Test that two messages can be sent to two different number within the same
+	 * second
+	 */
+	@Test
+	public void testCanSendConcurrentlyWithThreads() throws SmsAuthException {
+		final String phonenumber1 = "+35840123462";
+		final String phonenumber2 = "+35840123463";
+
+		Thread t1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					smsAuthService.sendValidationSms(phonenumber1);
+				} catch (SmsAuthException e) {
+				}
+
+			}
+		});
+		Thread t2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					smsAuthService.sendValidationSms(phonenumber2);
+				} catch (SmsAuthException e) {
+				}
+
+			}
+		});
+		t1.start();
+		t2.start();
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Collection<SmsCode> smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber1);
+		assertEquals(1, smsCodes.size());
+		smsCodes = smsCodeRepository.findAllByPhonenumber(phonenumber2);
+		assertEquals(1, smsCodes.size());
 	}
 
 	/*
