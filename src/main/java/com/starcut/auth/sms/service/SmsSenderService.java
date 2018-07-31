@@ -39,11 +39,16 @@ public class SmsSenderService {
 	}
 	
 	public void sendSms(String phoneNumber, String message) {
-		System.exit(1);
+		/* TODO Enable
+		 * 
+		 * Disabled during dev
+		 
 		PublishResult result = amazonSNSClient.publish(new PublishRequest()
                 .withMessage(message)
                 .withPhoneNumber(phoneNumber)
                 .withMessageAttributes(getSmsAttributes()));
 		LOGGER.info("Sent an SMS to " + phoneNumber + ". MessageId is " + result.getMessageId());
+		*/
+		LOGGER.info("Sent an SMS to " + phoneNumber + " with message " + message);
 	}
 }
