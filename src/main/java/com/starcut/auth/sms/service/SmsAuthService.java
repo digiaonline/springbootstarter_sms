@@ -199,6 +199,7 @@ public class SmsAuthService {
 			smsCode.setPhonenumber(formattedPhoneNumber);
 			smsCode.setId(id);
 			smsCode.setType(type);
+			smsCode.setCreatedAt(Instant.now());
 			smsCodeRepository.save(smsCode);
 		} finally {
 			releasePhoneNumber(formattedPhoneNumber);
