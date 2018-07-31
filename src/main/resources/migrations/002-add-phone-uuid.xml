@@ -10,11 +10,11 @@
 				<constraints primaryKey="true" />
 			</column>
 
-			<column name="uuid" type="VARCHAR(32)">
+			<column name="uuid" type="VARCHAR(36)">
 				<constraints nullable="false" />
 			</column>
 			
-			<column name="new_uuid" type="VARCHAR(32)">
+			<column name="new_uuid" type="VARCHAR(36)">
 				<constraints nullable="true" />
 			</column>
 			
