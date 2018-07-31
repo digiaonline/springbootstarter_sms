@@ -10,6 +10,13 @@
 
 	<name>sms-auth-spring-boot-starter</name>
 	<description>Authentication through SMS</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.3.RELEASE</version>
+	</parent>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -22,18 +29,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
-			<version>2.0.2.RELEASE</version>
+			<version>2.0.3.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>2.0.2.RELEASE</version>
+			<version>2.0.3.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>2.0.2.RELEASE</version>
+			<version>2.0.3.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -57,11 +64,6 @@
 			<artifactId>aws-java-sdk-sns</artifactId>
 			<version>1.11.344</version>
 		</dependency>
-
-
-
-
-
 	</dependencies>
 
 	<build>
