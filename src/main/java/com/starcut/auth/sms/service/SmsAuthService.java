@@ -284,8 +284,8 @@ public class SmsAuthService {
 	 * Send a login SMS if the Device UUID is new or valid. Send a reset SMS if the
 	 * Device UUID differs from the stored one.
 	 */
-	public SmsCodeType sendLoginOrResetSms(String phoneNumber, String deviceUuid, String loginTemplate, String ResetTemplate)
-			throws InvalidPhoneNumberException, TooManySmsSentException {
+	public SmsCodeType sendLoginOrResetSms(String phoneNumber, String deviceUuid, String loginTemplate,
+			String ResetTemplate) throws InvalidPhoneNumberException, TooManySmsSentException {
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
 		if (verifyUuid(phoneUuid, deviceUuid)) {
 			this.sendSmsSecure(phoneNumber, deviceUuid, loginTemplate);
@@ -296,8 +296,8 @@ public class SmsAuthService {
 	}
 
 	/*
-	 * Verify the code provided. If the deviceUuid is different to the registered one,
-	 * this will trigger a reset process.
+	 * Verify the code provided. If the deviceUuid is different to the registered
+	 * one, this will trigger a reset process.
 	 */
 	public SmsCodeType verifyLoginOrResetSms(String phoneNumber, String deviceUuid, String code, String warningMessage)
 			throws InvalidCodeException, InvalidPhoneNumberException {
