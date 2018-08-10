@@ -18,6 +18,10 @@ public class SmsAuthConfig {
 
 	private int transferDelayInHours;
 
+	private String easterEggPhoneNumber;
+
+	private String easterEggCode;
+
 	private String region;
 
 	private String senderId;
@@ -113,4 +117,21 @@ public class SmsAuthConfig {
 	public void setTransferDelayInHours(int transferDelayInHours) {
 		this.transferDelayInHours = transferDelayInHours;
 	}
+
+	public String getEasterEggPhoneNumber() {
+		return easterEggPhoneNumber;
+	}
+
+	public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
+		this.easterEggPhoneNumber = easterEggPhoneNumber;
+	}
+
+	public String getEasterEggCode() {
+		return easterEggCode;
+	}
+
+	public void setEasterEggCode(String easterEggCode) {
+		this.easterEggCode = easterEggCode;
+	}
+
 }

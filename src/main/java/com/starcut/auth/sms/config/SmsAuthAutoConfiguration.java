@@ -45,6 +45,10 @@ public class SmsAuthAutoConfiguration {
 
 	private static final String DEFAULT_SENDER_ID = "Starcut";
 
+	private static final String DEFAULT_EASTER_EGG_PHONE_NUMBER = "+358999999";
+
+	private static final String DEFAULT_EASTER_EGG_CODE = "123456";
+
 	@Autowired
 	private SmsAuthProperties smsAuthProperties;
 
@@ -76,6 +80,12 @@ public class SmsAuthAutoConfiguration {
 		Integer minTimeBetweenTwoSmsInSecond = smsAuthProperties.getMinTimeBetweenTwoSmsInSeconds() == null
 				? DEFAULT_MIN_TIME_BETWEEN_TWO_SMS_IN_SECONDS
 				: smsAuthProperties.getMinTimeBetweenTwoSmsInSeconds();
+		String easterEggPhoneNumber = smsAuthProperties.getEasterEggPhoneNumber() == null
+				? DEFAULT_EASTER_EGG_PHONE_NUMBER
+				: smsAuthProperties.getEasterEggPhoneNumber();
+		String easterEggCode = smsAuthProperties.getEasterEggCode() == null
+				? DEFAULT_EASTER_EGG_CODE
+				: smsAuthProperties.getEasterEggCode();
 
 		SmsAuthConfig authSmsConfig = new SmsAuthConfig();
 		authSmsConfig.setShortCode(shortCode);
@@ -90,6 +100,8 @@ public class SmsAuthAutoConfiguration {
 		authSmsConfig.setSenderId(senderId);
 		authSmsConfig.setTransferDelayInHours(transferDelayInHours);
 		authSmsConfig.setMinTimeBetweenTwoSmsInSecond(minTimeBetweenTwoSmsInSecond);
+		authSmsConfig.setEasterEggPhoneNumber(easterEggPhoneNumber);
+		authSmsConfig.setEasterEggCode(easterEggCode);
 
 		return authSmsConfig;
 	}

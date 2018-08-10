@@ -26,6 +26,10 @@ public class SmsAuthProperties {
 
 	private Integer minTimeBetweenTwoSmsInSeconds;
 
+	private String easterEggPhoneNumber;
+
+	private String easterEggCode;
+
 	public String getShortCode() {
 		return shortCode;
 	}
@@ -112,6 +116,22 @@ public class SmsAuthProperties {
 
 	public void setTransferDelayInHours(Integer transferDelayInHours) {
 		this.transferDelayInHours = transferDelayInHours;
+	}
+
+	public String getEasterEggPhoneNumber() {
+		return easterEggPhoneNumber;
+	}
+
+	public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
+		this.easterEggPhoneNumber = easterEggPhoneNumber;
+	}
+
+	public String getEasterEggCode() {
+		return easterEggCode;
+	}
+
+	public void setEasterEggCode(String easterEggCode) {
+		this.easterEggCode = easterEggCode;
 	}
 
 }

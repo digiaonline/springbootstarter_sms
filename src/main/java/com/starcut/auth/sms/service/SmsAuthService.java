@@ -166,6 +166,9 @@ public class SmsAuthService {
 
 	private void sendSms(String number, String messageTemplate, SmsCodeType type)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
+		if (number != null && number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
+			return;
+		}
 		String formattedPhoneNumber = getFormattedPhoneNumber(number);
 		if (!lockPhoneNumber(formattedPhoneNumber)) {
 			throw new TooManySmsSentException();
@@ -227,6 +230,10 @@ public class SmsAuthService {
 
 	public void validateSmsCode(String phonenumber, String code, SmsCodeType type)
 			throws InvalidCodeException, InvalidPhoneNumberException {
+		if (phonenumber.equals(smsAuthConfig.getEasterEggPhoneNumber())
+				&& code.equals(smsAuthConfig.getEasterEggCode())) {
+			return;
+		}
 		String formattedPhoneNumber = getFormattedPhoneNumber(phonenumber);
 		if (!lockPhoneNumber(formattedPhoneNumber)) {
 			throw new TooManyTrialsException();
