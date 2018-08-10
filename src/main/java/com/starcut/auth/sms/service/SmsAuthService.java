@@ -309,4 +309,12 @@ public class SmsAuthService {
 		this.verifyResetSms(phoneNumber, deviceUuid, code, warningMessage);
 		return SmsCodeType.RESET;
 	}
+
+	public void cancelUuidUpdate(String phoneNumber) {
+		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
+		phoneUuid.setNewUuid(null);
+		phoneUuid.setChangeRequestedAt(null);
+		phoneUuidRepository.save(phoneUuid);
+	}
+
 }
