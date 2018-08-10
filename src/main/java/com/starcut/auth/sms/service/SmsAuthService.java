@@ -119,7 +119,9 @@ public class SmsAuthService {
 	public void verifyResetSms(String number, String uuid, String code, String warningMessage)
 			throws InvalidCodeException, InvalidPhoneNumberException {
 		validateSmsCode(number, code, SmsCodeType.RESET);
-		smsSenderService.sendSms(number, warningMessage);
+		if (smsAuthConfig.getTransferDelayInHours() > 0) {
+			smsSenderService.sendSms(number, warningMessage);
+		}
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(number).orElseThrow(InvalidCodeException::new);
 		phoneUuid.setNewUuid(uuid);
 		phoneUuid.setChangeRequestedAt(Instant.now());
