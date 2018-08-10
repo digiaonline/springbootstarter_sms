@@ -33,22 +33,16 @@ public class SmsSenderService {
 		        .withStringValue(smsAuthConfig.getSenderId())
 		        .withDataType("String"));
 		smsAttributes.put("AWS.SNS.SMS.SMSType", new MessageAttributeValue()
-		        .withStringValue("Transactional") //Sets the type to promotional.
+		        .withStringValue("Transactional")
 		        .withDataType("String"));
 		return smsAttributes;
 	}
 	
 	public void sendSms(String phoneNumber, String message) {
-		/* TODO Enable
-		 * 
-		 * Disabled during dev
-		 
 		PublishResult result = amazonSNSClient.publish(new PublishRequest()
                 .withMessage(message)
                 .withPhoneNumber(phoneNumber)
                 .withMessageAttributes(getSmsAttributes()));
-		LOGGER.info("Sent an SMS to " + phoneNumber + ". MessageId is " + result.getMessageId());
-		*/
-		LOGGER.info("Sent an SMS to " + phoneNumber + " with message " + message);
+		LOGGER.info("Sent an SMS to " + phoneNumber + ". MessageId is " + result.getMessageId() + " with message " + message);
 	}
 }

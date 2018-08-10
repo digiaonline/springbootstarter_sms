@@ -64,8 +64,7 @@ public class SmsAuthService {
 	private String generateCode() {
 		Long numberOfCodes = (long) Math.pow(10, smsAuthConfig.getCodeLength());
 		Long code = Math.abs(secureRandom.nextLong()) % numberOfCodes;
-		return "123456";
-		//return String.format("%0" + smsAuthConfig.getCodeLength() + "d", code);
+		return String.format("%0" + smsAuthConfig.getCodeLength() + "d", code);
 	}
 
 	private String getFormattedPhoneNumber(String number) throws InvalidPhoneNumberException {
