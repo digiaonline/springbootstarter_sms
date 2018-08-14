@@ -45,7 +45,7 @@ public class SmsAuthAutoConfiguration {
 
 	private static final String DEFAULT_SENDER_ID = "Starcut";
 
-	private static final String DEFAULT_EASTER_EGG_PHONE_NUMBER = "+358999999";
+	private static final String DEFAULT_EASTER_EGG_PHONE_NUMBER = "+358999999999";
 
 	private static final String DEFAULT_EASTER_EGG_CODE = "123456";
 
