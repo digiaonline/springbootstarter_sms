@@ -7,4 +7,5 @@
 	
 	<include file="migrations/001-add-sms-auth.xml" relativeToChangelogFile="true" />
 	<include file="migrations/002-add-phone-uuid.xml" relativeToChangelogFile="true" />
+	<include file="migrations/003-add-sms-log.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>
