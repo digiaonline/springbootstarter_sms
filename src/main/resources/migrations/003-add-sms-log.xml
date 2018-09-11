@@ -6,7 +6,7 @@
 
 	<changeSet id="1" author="Stephane Weiss">
 
-		<createTable tableName="log">
+		<createTable tableName="sms_log">
 
 			<column name="id" type="INT" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" />

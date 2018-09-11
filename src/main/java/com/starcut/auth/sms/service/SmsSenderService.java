@@ -4,13 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.CreateTopicRequest;
 import com.amazonaws.services.sns.model.CreateTopicResult;
 import com.amazonaws.services.sns.model.DeleteTopicRequest;
@@ -33,7 +35,11 @@ public class SmsSenderService {
 	@Autowired
 	private SmsLogRepository smsLogRepository;
 
-	private AmazonSNS amazonSNSClient = AmazonSNSClientBuilder.defaultClient();
+	@Autowired
+	private AmazonSNS amazonSNSClient;
+
+	@Value("${AWS.SNS.SMS.Topic.ServiceName}")
+	private String topicServiceName;
 
 	private Logger LOGGER = LoggerFactory.getLogger(SmsSenderService.class);
 
@@ -67,7 +73,7 @@ public class SmsSenderService {
 	}
 
 	public String registerTopic() {
-		String topicId = UUID.randomUUID().toString();
+		String topicId = topicServiceName + "_" + UUID.randomUUID().toString();
 		CreateTopicRequest createTopic = new CreateTopicRequest(topicId);
 		CreateTopicResult result = amazonSNSClient.createTopic(createTopic);
 		LOGGER.info("Create topic request: " + amazonSNSClient.getCachedResponseMetadata(createTopic));
@@ -75,26 +81,32 @@ public class SmsSenderService {
 		return result.getTopicArn();
 	}
 
-	public boolean subscribeToTopic(String phoneNumber, String topicArn) {
+	public boolean subscribeToTopic(String phoneNumber, String topicArn, String sender, String message) {
 		SubscribeRequest subscribe = new SubscribeRequest(topicArn, SMS_PROTOCOL, phoneNumber);
 		SubscribeResult subscribeResult = amazonSNSClient.subscribe(subscribe);
 		SmsLog smsLog = new SmsLog();
 		smsLog.setPhoneNumber(phoneNumber);
 		smsLog.setTopicArn(topicArn);
+		smsLog.setSenderId(sender);
+		smsLog.setMessage(message);
 		smsLogRepository.save(smsLog);
 		LOGGER.info("Subscribe request: " + amazonSNSClient.getCachedResponseMetadata(subscribe));
 		LOGGER.info("Subscribe result: " + subscribeResult);
 		return subscribeResult.getSdkHttpMetadata().getHttpStatusCode() == 200;
 	}
 
+	@Transactional
 	public boolean sendSMSToTopic(String topicArn, String sender, String message) {
 		PublishResult result = amazonSNSClient.publish(new PublishRequest().withMessage(message).withTopicArn(topicArn)
 				.withMessageAttributes(getSmsAttributes(sender)));
-		LOGGER.info("Sent an SMS to topic '" + topicArn + "'. MessageId is " + result.getMessageId() + " with message "
-				+ message);
 		boolean success = result.getSdkHttpMetadata().getHttpStatusCode() == 200;
+
 		if (success) {
-			smsLogRepository.recordPublication(topicArn, message, sender);
+			LOGGER.info("Sent an SMS to topic '" + topicArn + "'. MessageId is " + result.getMessageId()
+					+ " with message " + message);
+			smsLogRepository.recordPublication(topicArn, message, sender, result.getMessageId());
+		} else {
+			LOGGER.error("Failed to send message: " + message + " for topic: " + topicArn);
 		}
 		return success;
 	}
