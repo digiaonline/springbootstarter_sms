@@ -16,7 +16,7 @@ public class SmsLog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Size(max = 15)
+	@Size(max = 20)
 	@NotEmpty
 	private String phoneNumber;
 

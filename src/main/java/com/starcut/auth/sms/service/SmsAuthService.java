@@ -22,10 +22,12 @@ import com.starcut.auth.sms.config.SmsAuthConfig;
 import com.starcut.auth.sms.db.PhoneUuidRepository;
 import com.starcut.auth.sms.db.PhonenumberLockRepository;
 import com.starcut.auth.sms.db.SmsCodeRepository;
+import com.starcut.auth.sms.db.SmsLogRepository;
 import com.starcut.auth.sms.db.entity.PhoneUuid;
 import com.starcut.auth.sms.db.entity.PhonenumberLock;
 import com.starcut.auth.sms.db.entity.SmsCode;
 import com.starcut.auth.sms.db.entity.SmsCodeId;
+import com.starcut.auth.sms.db.entity.SmsLog;
 import com.starcut.auth.sms.db.entity.type.SmsCodeType;
 import com.starcut.auth.sms.exceptions.ExpiredCodeException;
 import com.starcut.auth.sms.exceptions.InvalidCodeException;
@@ -45,6 +47,9 @@ public class SmsAuthService {
 
 	@Autowired
 	private PhoneUuidRepository phoneUuidRepository;
+
+	@Autowired
+	private SmsLogRepository smsLogRepository;
 
 	@Autowired
 	private SmsSenderService smsSenderService;
@@ -182,10 +187,11 @@ public class SmsAuthService {
 		sendSms(number, messageTemplate, SmsCodeType.VALIDATION);
 	}
 
-	private void sendSms(String number, String messageTemplate, SmsCodeType type)
+	private String sendSms(String number, String messageTemplate, SmsCodeType type)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
+		String requestId = null;
 		if (number != null && number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
-			return;
+			return requestId;
 		}
 		number = getFormattedPhoneNumber(number);
 
@@ -212,7 +218,7 @@ public class SmsAuthService {
 			String code = generateCode();
 			String content = String.format(messageTemplate, code);
 
-			smsSenderService.sendSms(number, content);
+			requestId = smsSenderService.sendSms(number, content);
 
 			SmsCode smsCode = new SmsCode();
 			SmsCodeId id = new SmsCodeId();
@@ -227,6 +233,7 @@ public class SmsAuthService {
 		} finally {
 			releasePhoneNumber(number);
 		}
+		return requestId;
 	}
 
 	public void validateSmsCodeSecure(String phoneNumber, String uuid, String code)
@@ -291,13 +298,13 @@ public class SmsAuthService {
 		validateSmsCode(phoneNumber, code, SmsCodeType.VALIDATION);
 	}
 
-	public void sendValidationSms(String phoneNumber) throws InvalidPhoneNumberException, TooManySmsSentException {
-		sendValidationSms(phoneNumber, "%s");
+	public String sendValidationSms(String phoneNumber) throws InvalidPhoneNumberException, TooManySmsSentException {
+		return sendValidationSms(phoneNumber, "%s");
 	}
 
-	public void sendValidationSms(String phoneNumber, String smsVerificationTemplate)
+	public String sendValidationSms(String phoneNumber, String smsVerificationTemplate)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
-		sendSms(phoneNumber, smsVerificationTemplate, SmsCodeType.VALIDATION);
+		return sendSms(phoneNumber, smsVerificationTemplate, SmsCodeType.VALIDATION);
 	}
 
 	/*
@@ -345,4 +352,13 @@ public class SmsAuthService {
 		phoneUuid.setChangeRequestedAt(null);
 		phoneUuidRepository.save(phoneUuid);
 	}
+
+	public String verifyValidationSmsCodeByRequestId(String requestId, String code)
+			throws InvalidCodeException, InvalidPhoneNumberException {
+		SmsLog smsLog = smsLogRepository.findByRequestId(requestId).orElseThrow(InvalidCodeException::new);
+		String phoneNumber = smsLog.getPhoneNumber();
+		this.verifyValidationSmsCode(phoneNumber, code);
+		return phoneNumber;
+	}
+
 }

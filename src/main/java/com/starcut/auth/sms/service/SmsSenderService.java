@@ -55,11 +55,11 @@ public class SmsSenderService {
 		return smsAttributes;
 	}
 
-	public void sendSms(String phoneNumber, String message) {
-		sendSms(phoneNumber, message, smsAuthConfig.getSenderId());
+	public String sendSms(String phoneNumber, String message) {
+		return sendSms(phoneNumber, message, smsAuthConfig.getSenderId());
 	}
 
-	public void sendSms(String phoneNumber, String message, String senderId) {
+	public String sendSms(String phoneNumber, String message, String senderId) {
 		PublishResult result = amazonSNSClient.publish(new PublishRequest().withMessage(message)
 				.withPhoneNumber(phoneNumber).withMessageAttributes(getSmsAttributes(senderId)));
 		SmsLog smsLog = new SmsLog();
@@ -70,6 +70,7 @@ public class SmsSenderService {
 		smsLogRepository.save(smsLog);
 		LOGGER.info("Sent an SMS to " + phoneNumber + ". MessageId is " + result.getMessageId() + " with message "
 				+ message);
+		return result.getMessageId();
 	}
 
 	public String registerTopic() {
@@ -96,19 +97,20 @@ public class SmsSenderService {
 	}
 
 	@Transactional
-	public boolean sendSMSToTopic(String topicArn, String sender, String message) {
+	public String sendSMSToTopic(String topicArn, String sender, String message) {
 		PublishResult result = amazonSNSClient.publish(new PublishRequest().withMessage(message).withTopicArn(topicArn)
 				.withMessageAttributes(getSmsAttributes(sender)));
 		boolean success = result.getSdkHttpMetadata().getHttpStatusCode() == 200;
-
+		String requestId = null;
 		if (success) {
+			requestId = result.getMessageId();
 			LOGGER.info("Sent an SMS to topic '" + topicArn + "'. MessageId is " + result.getMessageId()
 					+ " with message " + message);
 			smsLogRepository.recordPublication(topicArn, message, sender, result.getMessageId());
 		} else {
 			LOGGER.error("Failed to send message: " + message + " for topic: " + topicArn);
 		}
-		return success;
+		return requestId;
 	}
 
 	public boolean deleteTopic(String topicArn) {
