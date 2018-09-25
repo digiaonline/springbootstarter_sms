@@ -16,7 +16,7 @@
 				<constraints nullable="false" />
 			</column>
 
-			<column name="phone_number" type="VARCHAR(15)">
+			<column name="phone_number" type="VARCHAR(16)">
 				<constraints nullable="false" />
 			</column>
 
