@@ -189,6 +189,11 @@ public class SmsAuthService {
 
 	private String sendSms(String number, String messageTemplate, SmsCodeType type)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
+		return sendSms(number, messageTemplate, type, smsAuthConfig.getSenderId());
+	}
+
+	private String sendSms(String number, String messageTemplate, SmsCodeType type, String senderId)
+			throws InvalidPhoneNumberException, TooManySmsSentException {
 		String requestId = null;
 		if (number != null && number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
 			return requestId;
@@ -218,7 +223,7 @@ public class SmsAuthService {
 			String code = generateCode();
 			String content = String.format(messageTemplate, code);
 
-			requestId = smsSenderService.sendSms(number, content);
+			requestId = smsSenderService.sendSms(number, content, senderId);
 
 			SmsCode smsCode = new SmsCode();
 			SmsCodeId id = new SmsCodeId();
@@ -359,6 +364,11 @@ public class SmsAuthService {
 		String phoneNumber = smsLog.getPhoneNumber();
 		this.verifyValidationSmsCode(phoneNumber, code);
 		return phoneNumber;
+	}
+
+	public String sendValidationSmsWithSenderId(String phoneNumber, String smsVerificationTemplate, String senderId)
+			throws InvalidPhoneNumberException, TooManySmsSentException {
+		return sendSms(phoneNumber, smsVerificationTemplate, SmsCodeType.VALIDATION, senderId);
 	}
 
 }
