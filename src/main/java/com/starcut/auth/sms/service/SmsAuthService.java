@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -195,8 +196,12 @@ public class SmsAuthService {
 	private String sendSms(String number, String messageTemplate, SmsCodeType type, String senderId)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
 		String requestId = null;
+
+		String formattedPhoneNumber;
 		if (number != null && number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
-			return requestId;
+			formattedPhoneNumber = number;
+		} else {
+			formattedPhoneNumber = getFormattedPhoneNumber(number);
 		}
 		number = getFormattedPhoneNumber(number);
 
@@ -220,9 +225,21 @@ public class SmsAuthService {
 					throw new TooManySmsSentException();
 				}
 			}
-			String code = generateCode();
+			String code;
+			code = generateCode();
 			String content = String.format(messageTemplate, code);
 
+			if (number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
+				code = smsAuthConfig.getEasterEggCode();
+				requestId = UUID.randomUUID().toString();
+				SmsLog smsLog = new SmsLog();
+				smsLog.setMessage(content);
+				smsLog.setRequestId(requestId);
+				smsLog.setPhoneNumber(number);
+				smsLog.setSenderId(senderId);
+				smsLogRepository.saveAndFlush(smsLog);
+				return requestId;
+			}
 			requestId = smsSenderService.sendSms(number, content, senderId);
 
 			SmsCode smsCode = new SmsCode();
