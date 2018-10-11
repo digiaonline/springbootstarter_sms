@@ -74,6 +74,11 @@ public class SmsAuthService {
 		}
 
 		PhoneNumber phoneNumber;
+
+		if (number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
+			return number;
+		}
+
 		try {
 			phoneNumber = phoneNumberUtil.parse(number, smsAuthConfig.getRegion());
 		} catch (NumberParseException e) {
@@ -123,6 +128,9 @@ public class SmsAuthService {
 
 	public void verifyResetSms(String number, String uuid, String code, String warningMessage)
 			throws InvalidCodeException, InvalidPhoneNumberException {
+
+		number = getFormattedPhoneNumber(number);
+
 		validateSmsCode(number, code, SmsCodeType.RESET);
 		if (smsAuthConfig.getTransferDelayInHours() > 0) {
 			smsSenderService.sendSms(number, warningMessage);
@@ -141,7 +149,7 @@ public class SmsAuthService {
 			return false;
 		}
 		if (phoneUuid.getNewUuid().equals(uuid)
-				&& phoneUuid.getChangeRequestedAt().plus(Duration.ofHours(10)).isAfter(Instant.now())) {
+				&& phoneUuid.getChangeRequestedAt().plus(Duration.ofHours(smsAuthConfig.getTransferDelayInHours())).isBefore(Instant.now())) {
 			return true;
 		}
 		return false;
@@ -161,6 +169,9 @@ public class SmsAuthService {
 
 	public void sendSmsSecure(String number, String uuid, String messageTemplate)
 			throws InvalidPhoneNumberException, TooManySmsSentException {
+
+		number = getFormattedPhoneNumber(number);
+
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(number).orElse(null);
 
 		if (!verifyUuid(phoneUuid, uuid)) {
@@ -176,21 +187,22 @@ public class SmsAuthService {
 		if (number != null && number.equals(smsAuthConfig.getEasterEggPhoneNumber())) {
 			return;
 		}
-		String formattedPhoneNumber = getFormattedPhoneNumber(number);
-		if (!lockPhoneNumber(formattedPhoneNumber)) {
+		number = getFormattedPhoneNumber(number);
+
+		if (!lockPhoneNumber(number)) {
 			throw new TooManySmsSentException();
 		}
 		try {
 			Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getPeriodInMinutes()));
 			List<SmsCode> smsCodes = smsCodeRepository
-					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
+					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(number, oldest);
 			long nbUnvalidated = smsCodes.stream().filter(smsCode -> smsCode.getValidated()).count();
 			if (nbUnvalidated >= smsAuthConfig.getMaxSmsPerPeriod()) {
 				throw new TooManySmsSentException();
 			}
 			if (!smsCodes.isEmpty()) {
 				SmsCode previousCode = smsCodes.get(0);
-				smsCodeRepository.findByPhonenumberAndCode(formattedPhoneNumber, previousCode.getCode());
+				smsCodeRepository.findByPhonenumberAndCode(number, previousCode.getCode());
 				if (previousCode.getCreatedAt()
 						.plus(Duration.ofSeconds(smsAuthConfig.getMinTimeBetweenTwoSmsInSecond()))
 						.compareTo(Instant.now()) > 0) {
@@ -200,25 +212,27 @@ public class SmsAuthService {
 			String code = generateCode();
 			String content = String.format(messageTemplate, code);
 
-			smsSenderService.sendSms(formattedPhoneNumber, content);
+			smsSenderService.sendSms(number, content);
 
 			SmsCode smsCode = new SmsCode();
 			SmsCodeId id = new SmsCodeId();
 			id.setCode(code);
-			id.setPhonenumber(formattedPhoneNumber);
+			id.setPhonenumber(number);
 			smsCode.setCode(code);
-			smsCode.setPhonenumber(formattedPhoneNumber);
+			smsCode.setPhonenumber(number);
 			smsCode.setId(id);
 			smsCode.setType(type);
 			smsCode.setCreatedAt(Instant.now());
 			smsCodeRepository.save(smsCode);
 		} finally {
-			releasePhoneNumber(formattedPhoneNumber);
+			releasePhoneNumber(number);
 		}
 	}
 
 	public void validateSmsCodeSecure(String phoneNumber, String uuid, String code)
 			throws InvalidCodeException, InvalidPhoneNumberException {
+
+		phoneNumber = getFormattedPhoneNumber(phoneNumber);
 
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
 		if (!verifyUuid(phoneUuid, uuid)) {
@@ -235,20 +249,21 @@ public class SmsAuthService {
 		updateUuid(phoneUuid, uuid);
 	}
 
-	public void validateSmsCode(String phonenumber, String code, SmsCodeType type)
+	public void validateSmsCode(String phoneNumber, String code, SmsCodeType type)
 			throws InvalidCodeException, InvalidPhoneNumberException {
-		if (phonenumber.equals(smsAuthConfig.getEasterEggPhoneNumber())
+		if (phoneNumber.equals(smsAuthConfig.getEasterEggPhoneNumber())
 				&& code.equals(smsAuthConfig.getEasterEggCode())) {
 			return;
 		}
-		String formattedPhoneNumber = getFormattedPhoneNumber(phonenumber);
-		if (!lockPhoneNumber(formattedPhoneNumber)) {
+		phoneNumber = getFormattedPhoneNumber(phoneNumber);
+
+		if (!lockPhoneNumber(phoneNumber)) {
 			throw new TooManyTrialsException();
 		}
 		try {
 			Instant oldest = Instant.now().minus(Duration.ofMinutes(smsAuthConfig.getCodeValidityInMinutes()));
 			List<SmsCode> smsCodes = smsCodeRepository
-					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(formattedPhoneNumber, oldest);
+					.findSmsCodeByPhonenumberAndCreatedAtGreaterThanOrderByCreatedAtDesc(phoneNumber, oldest);
 			if (smsCodes.isEmpty()) {
 				throw new ExpiredCodeException();
 			}
@@ -267,7 +282,7 @@ public class SmsAuthService {
 			smsCode.setValidated(true);
 			smsCodeRepository.save(smsCode);
 		} finally {
-			releasePhoneNumber(formattedPhoneNumber);
+			releasePhoneNumber(phoneNumber);
 		}
 	}
 
@@ -291,6 +306,9 @@ public class SmsAuthService {
 	 */
 	public SmsCodeType sendLoginOrResetSms(String phoneNumber, String deviceUuid, String loginTemplate,
 			String ResetTemplate) throws InvalidPhoneNumberException, TooManySmsSentException {
+
+		phoneNumber = getFormattedPhoneNumber(phoneNumber);
+
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
 		if (verifyUuid(phoneUuid, deviceUuid)) {
 			this.sendSmsSecure(phoneNumber, deviceUuid, loginTemplate);
@@ -306,6 +324,9 @@ public class SmsAuthService {
 	 */
 	public SmsCodeType verifyLoginOrResetSms(String phoneNumber, String deviceUuid, String code, String warningMessage)
 			throws InvalidCodeException, InvalidPhoneNumberException {
+
+		phoneNumber = getFormattedPhoneNumber(phoneNumber);
+
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
 		if (verifyUuid(phoneUuid, deviceUuid)) {
 			this.validateSmsCodeSecure(phoneNumber, deviceUuid, code);
@@ -315,11 +336,13 @@ public class SmsAuthService {
 		return SmsCodeType.RESET;
 	}
 
-	public void cancelUuidUpdate(String phoneNumber) {
+	public void cancelUuidUpdate(String phoneNumber) throws InvalidPhoneNumberException {
+
+		phoneNumber = getFormattedPhoneNumber(phoneNumber);
+
 		PhoneUuid phoneUuid = phoneUuidRepository.findById(phoneNumber).orElse(null);
 		phoneUuid.setNewUuid(null);
 		phoneUuid.setChangeRequestedAt(null);
 		phoneUuidRepository.save(phoneUuid);
 	}
-
 }
