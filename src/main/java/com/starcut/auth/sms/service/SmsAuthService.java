@@ -68,18 +68,24 @@ public class SmsAuthService {
 	}
 
 	private String getFormattedPhoneNumber(String number) throws InvalidPhoneNumberException {
+
+		if (number == null) {
+			throw new InvalidPhoneNumberException("The phone number is null");
+		}
+
 		PhoneNumber phoneNumber;
 		try {
 			phoneNumber = phoneNumberUtil.parse(number, smsAuthConfig.getRegion());
 		} catch (NumberParseException e) {
-			throw new InvalidPhoneNumberException();
+			throw new InvalidPhoneNumberException("Failed to parse the phone number: " + number);
 		}
 		if (!phoneNumberUtil.isValidNumber(phoneNumber)) {
-			throw new InvalidPhoneNumberException();
+			throw new InvalidPhoneNumberException("The phone number is not valid: " + number);
 		}
 		if (!smsAuthConfig.getAllowedRegion().isEmpty()
 				&& !smsAuthConfig.getAllowedRegion().contains(phoneNumber.getCountryCode())) {
-			throw new InvalidPhoneNumberException();
+			throw new InvalidPhoneNumberException(
+					"The phone number " + number + " does not belong to the allowed regions.");
 		}
 		return phoneNumberUtil.format(phoneNumber, PhoneNumberFormat.E164);
 	}
@@ -134,8 +140,8 @@ public class SmsAuthService {
 		if (phoneUuid.getNewUuid() == null || phoneUuid.getChangeRequestedAt() == null) {
 			return false;
 		}
-		if (phoneUuid.getNewUuid().equals(uuid) && phoneUuid.getChangeRequestedAt()
-				.plus(Duration.ofHours(smsAuthConfig.getCodeValidityInMinutes())).isAfter(Instant.now())) {
+		if (phoneUuid.getNewUuid().equals(uuid)
+				&& phoneUuid.getChangeRequestedAt().plus(Duration.ofHours(10)).isAfter(Instant.now())) {
 			return true;
 		}
 		return false;
