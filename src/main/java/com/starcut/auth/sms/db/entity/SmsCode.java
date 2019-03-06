@@ -1,95 +1,99 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.starcut.auth.sms.db.entity;
 
+import com.starcut.auth.sms.db.entity.type.SmsCodeType;
 import java.beans.Transient;
 import java.time.Instant;
-
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-
 import org.hibernate.annotations.CreationTimestamp;
-
-import com.starcut.auth.sms.db.entity.type.SmsCodeType;
 
 @Entity
 public class SmsCode {
+    @EmbeddedId
+    SmsCodeId id;
+    @CreationTimestamp
+    private Instant createdAt;
+    @Column(
+        insertable = false,
+        updatable = false
+    )
+    private String phonenumber;
+    private Integer trials = 0;
+    @Column(
+        insertable = false,
+        updatable = false
+    )
+    private String code;
+    private Boolean validated = false;
+    private SmsCodeType type;
 
-	@EmbeddedId
-	SmsCodeId id;
+    public SmsCode() {
+    }
 
-	@CreationTimestamp
-	private Instant createdAt;
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
 
-	@Column(insertable = false, updatable = false)
-	private String phonenumber;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	private Integer trials = 0;
+    public String getPhonenumber() {
+        return this.phonenumber;
+    }
 
-	@Column(insertable = false, updatable = false)
-	private String code;
+    public void setPhonenumber(String phonenumber) {
+        this.phonenumber = phonenumber;
+    }
 
-	private Boolean validated = false;
+    public Integer getTrials() {
+        return this.trials;
+    }
 
-	private SmsCodeType type;
+    public void setTrials(Integer trials) {
+        this.trials = trials;
+    }
 
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
+    public String getCode() {
+        return this.code;
+    }
 
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-	public String getPhonenumber() {
-		return phonenumber;
-	}
+    public SmsCodeId getId() {
+        return this.id;
+    }
 
-	public void setPhonenumber(String phonenumber) {
-		this.phonenumber = phonenumber;
-	}
+    public void setId(SmsCodeId id) {
+        this.id = id;
+    }
 
-	public Integer getTrials() {
-		return trials;
-	}
+    public Boolean getValidated() {
+        return this.validated;
+    }
 
-	public void setTrials(Integer trials) {
-		this.trials = trials;
-	}
+    public void setValidated(Boolean validated) {
+        this.validated = validated;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public SmsCodeType getType() {
+        return this.type;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public void setType(SmsCodeType type) {
+        this.type = type;
+    }
 
-	public SmsCodeId getId() {
-		return id;
-	}
-
-	public void setId(SmsCodeId id) {
-		this.id = id;
-	}
-
-	public Boolean getValidated() {
-		return validated;
-	}
-
-	public void setValidated(Boolean validated) {
-		this.validated = validated;
-	}
-
-	public SmsCodeType getType() {
-		return type;
-	}
-
-	public void setType(SmsCodeType type) {
-		this.type = type;
-	}
-
-	@Transient
-	public void incrementTrials() {
-		this.trials++;
-	}
+    @Transient
+    public void incrementTrials() {
+        this.trials = this.trials + 1;
+    }
 }

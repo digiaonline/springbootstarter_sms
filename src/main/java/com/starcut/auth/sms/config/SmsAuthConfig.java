@@ -1,137 +1,131 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.starcut.auth.sms.config;
 
 import java.util.List;
 
 public class SmsAuthConfig {
+    private String shortCode;
+    private int codeLength;
+    private int maxSmsPerPeriod;
+    private int periodInMinutes;
+    private int codeValidityInMinutes;
+    private int maxTrialsPerCode;
+    private int transferDelayInHours;
+    private String easterEggPhoneNumber;
+    private String easterEggCode;
+    private String region;
+    private String senderId;
+    private List<Integer> allowedRegion;
+    private int minTimeBetweenTwoSmsInSecond;
 
-	private String shortCode;
+    public SmsAuthConfig() {
+    }
 
-	private int codeLength;
+    public String getShortCode() {
+        return this.shortCode;
+    }
 
-	private int maxSmsPerPeriod;
+    public void setShortCode(String shortCode) {
+        this.shortCode = shortCode;
+    }
 
-	private int periodInMinutes;
+    public int getCodeLength() {
+        return this.codeLength;
+    }
 
-	private int codeValidityInMinutes;
+    public void setCodeLength(int codeLength) {
+        this.codeLength = codeLength;
+    }
 
-	private int maxTrialsPerCode;
+    public int getMaxSmsPerPeriod() {
+        return this.maxSmsPerPeriod;
+    }
 
-	private int transferDelayInHours;
+    public void setMaxSmsPerPeriod(int maxSmsPerPeriod) {
+        this.maxSmsPerPeriod = maxSmsPerPeriod;
+    }
 
-	private String easterEggPhoneNumber;
+    public int getPeriodInMinutes() {
+        return this.periodInMinutes;
+    }
 
-	private String easterEggCode;
+    public void setPeriodInMinutes(int periodInMinutes) {
+        this.periodInMinutes = periodInMinutes;
+    }
 
-	private String region;
+    public int getCodeValidityInMinutes() {
+        return this.codeValidityInMinutes;
+    }
 
-	private String senderId;
+    public void setCodeValidityInMinutes(int codeValidityInMinutes) {
+        this.codeValidityInMinutes = codeValidityInMinutes;
+    }
 
-	private List<Integer> allowedRegion;
+    public int getMaxTrialsPerCode() {
+        return this.maxTrialsPerCode;
+    }
 
-	private int minTimeBetweenTwoSmsInSecond;
+    public void setMaxTrialsPerCode(int maxTrialsPerCode) {
+        this.maxTrialsPerCode = maxTrialsPerCode;
+    }
 
-	public String getShortCode() {
-		return shortCode;
-	}
+    public String getRegion() {
+        return this.region;
+    }
 
-	public void setShortCode(String shortCode) {
-		this.shortCode = shortCode;
-	}
+    public void setRegion(String region) {
+        this.region = region;
+    }
 
-	public int getCodeLength() {
-		return codeLength;
-	}
+    public List<Integer> getAllowedRegion() {
+        return this.allowedRegion;
+    }
 
-	public void setCodeLength(int codeLength) {
-		this.codeLength = codeLength;
-	}
+    public void setAllowedRegion(List<Integer> allowedRegion) {
+        this.allowedRegion = allowedRegion;
+    }
 
-	public int getMaxSmsPerPeriod() {
-		return maxSmsPerPeriod;
-	}
+    public String getSenderId() {
+        return this.senderId;
+    }
 
-	public void setMaxSmsPerPeriod(int maxSmsPerPeriod) {
-		this.maxSmsPerPeriod = maxSmsPerPeriod;
-	}
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
 
-	public int getPeriodInMinutes() {
-		return periodInMinutes;
-	}
+    public int getMinTimeBetweenTwoSmsInSecond() {
+        return this.minTimeBetweenTwoSmsInSecond;
+    }
 
-	public void setPeriodInMinutes(int periodInMinutes) {
-		this.periodInMinutes = periodInMinutes;
-	}
+    public void setMinTimeBetweenTwoSmsInSecond(int minTimeBetweenTwoSmsInSecond) {
+        this.minTimeBetweenTwoSmsInSecond = minTimeBetweenTwoSmsInSecond;
+    }
 
-	public int getCodeValidityInMinutes() {
-		return codeValidityInMinutes;
-	}
+    public int getTransferDelayInHours() {
+        return this.transferDelayInHours;
+    }
 
-	public void setCodeValidityInMinutes(int codeValidityInMinutes) {
-		this.codeValidityInMinutes = codeValidityInMinutes;
-	}
+    public void setTransferDelayInHours(int transferDelayInHours) {
+        this.transferDelayInHours = transferDelayInHours;
+    }
 
-	public int getMaxTrialsPerCode() {
-		return maxTrialsPerCode;
-	}
+    public String getEasterEggPhoneNumber() {
+        return this.easterEggPhoneNumber;
+    }
 
-	public void setMaxTrialsPerCode(int maxTrialsPerCode) {
-		this.maxTrialsPerCode = maxTrialsPerCode;
-	}
+    public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
+        this.easterEggPhoneNumber = easterEggPhoneNumber;
+    }
 
-	public String getRegion() {
-		return region;
-	}
+    public String getEasterEggCode() {
+        return this.easterEggCode;
+    }
 
-	public void setRegion(String region) {
-		this.region = region;
-	}
-
-	public List<Integer> getAllowedRegion() {
-		return allowedRegion;
-	}
-
-	public void setAllowedRegion(List<Integer> allowedRegion) {
-		this.allowedRegion = allowedRegion;
-	}
-
-	public String getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(String senderId) {
-		this.senderId = senderId;
-	}
-
-	public int getMinTimeBetweenTwoSmsInSecond() {
-		return minTimeBetweenTwoSmsInSecond;
-	}
-
-	public void setMinTimeBetweenTwoSmsInSecond(int minTimeBetweenTwoSmsInSecond) {
-		this.minTimeBetweenTwoSmsInSecond = minTimeBetweenTwoSmsInSecond;
-	}
-
-	public int getTransferDelayInHours() {
-		return transferDelayInHours;
-	}
-
-	public void setTransferDelayInHours(int transferDelayInHours) {
-		this.transferDelayInHours = transferDelayInHours;
-	}
-
-	public String getEasterEggPhoneNumber() {
-		return easterEggPhoneNumber;
-	}
-
-	public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
-		this.easterEggPhoneNumber = easterEggPhoneNumber;
-	}
-
-	public String getEasterEggCode() {
-		return easterEggCode;
-	}
-
-	public void setEasterEggCode(String easterEggCode) {
-		this.easterEggCode = easterEggCode;
-	}
-
+    public void setEasterEggCode(String easterEggCode) {
+        this.easterEggCode = easterEggCode;
+    }
 }

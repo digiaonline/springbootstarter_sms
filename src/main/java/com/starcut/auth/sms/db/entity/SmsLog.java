@@ -1,7 +1,12 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.starcut.auth.sms.db.entity;
 
 import java.time.Instant;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,87 +16,105 @@ import javax.validation.constraints.Size;
 
 @Entity
 public class SmsLog {
+    @Id
+    @GeneratedValue(
+        strategy = GenerationType.IDENTITY
+    )
+    private Long id;
+    @Size(
+        max = 20
+    )
+    @NotEmpty
+    private String phoneNumber;
+    @Size(
+        max = 1600
+    )
+    private String message;
+    private Instant createdAt = Instant.now();
+    @Size(
+        max = 100
+    )
+    private String requestId;
+    @Size(
+        max = 11
+    )
+    private String senderId;
+    @Size(
+        max = 1000
+    )
+    private String topicArn;
+    @Size(
+        max = 100
+    )
+    @Column(
+        name = "team_uuid"
+    )
+    private String teamUUID;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    public SmsLog() {
+    }
 
-	@Size(max = 20)
-	@NotEmpty
-	private String phoneNumber;
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
 
-	@Size(max = 1600)
-	private String message;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-	private Instant createdAt;
+    public String getMessage() {
+        return this.message;
+    }
 
-	@Size(max = 100)
-	private String requestId;
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	@Size(max = 11)
-	private String senderId;
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
 
-	@Size(max = 1000)
-	private String topicArn;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public SmsLog() {
-		this.createdAt = Instant.now();
-	}
+    public String getRequestId() {
+        return this.requestId;
+    }
 
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
+    public Long getId() {
+        return this.id;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public String getSenderId() {
+        return this.senderId;
+    }
 
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
 
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
+    public String getTopicArn() {
+        return this.topicArn;
+    }
 
-	public String getRequestId() {
-		return requestId;
-	}
+    public void setTopicArn(String topicArn) {
+        this.topicArn = topicArn;
+    }
 
-	public void setRequestId(String requestId) {
-		this.requestId = requestId;
-	}
+    public String getTeamUUID() {
+        return this.teamUUID;
+    }
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(String senderId) {
-		this.senderId = senderId;
-	}
-
-	public String getTopicArn() {
-		return topicArn;
-	}
-
-	public void setTopicArn(String topicArn) {
-		this.topicArn = topicArn;
-	}
-
+    public void setTeamUUID(String teamUUID) {
+        this.teamUUID = teamUUID;
+    }
 }

@@ -1,137 +1,134 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.starcut.auth.sms.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "starcut.auth.sms")
+@ConfigurationProperties(
+    prefix = "starcut.auth.sms"
+)
 public class SmsAuthProperties {
+    private String shortCode;
+    private Integer codeLength;
+    private Integer maxSmsPerPeriod;
+    private Integer periodInMinutes;
+    private Integer codeValidityInMinutes;
+    private Integer maxTrialsPerCode;
+    private String region;
+    private String allowedRegions;
+    private String senderId;
+    private Integer transferDelayInHours;
+    private Integer minTimeBetweenTwoSmsInSeconds;
+    private String easterEggPhoneNumber;
+    private String easterEggCode;
 
-	private String shortCode; // dedicated short code for the application if any
-	private Integer codeLength;
+    public SmsAuthProperties() {
+    }
 
-	private Integer maxSmsPerPeriod;
+    public String getShortCode() {
+        return this.shortCode;
+    }
 
-	private Integer periodInMinutes;
+    public void setShortCode(String shortCode) {
+        this.shortCode = shortCode;
+    }
 
-	private Integer codeValidityInMinutes;
+    public Integer getCodeLength() {
+        return this.codeLength;
+    }
 
-	private Integer maxTrialsPerCode;
+    public void setCodeLength(Integer codeLength) {
+        this.codeLength = codeLength;
+    }
 
-	private String region;
+    public Integer getMaxSmsPerPeriod() {
+        return this.maxSmsPerPeriod;
+    }
 
-	private String allowedRegions;
+    public void setMaxSmsPerPeriod(Integer maxSmsPerPeriod) {
+        this.maxSmsPerPeriod = maxSmsPerPeriod;
+    }
 
-	private String senderId;
+    public Integer getPeriodInMinutes() {
+        return this.periodInMinutes;
+    }
 
-	private Integer transferDelayInHours;
+    public void setPeriodInMinutes(Integer periodInMinutes) {
+        this.periodInMinutes = periodInMinutes;
+    }
 
-	private Integer minTimeBetweenTwoSmsInSeconds;
+    public Integer getCodeValidityInMinutes() {
+        return this.codeValidityInMinutes;
+    }
 
-	private String easterEggPhoneNumber;
+    public void setCodeValidityInMinutes(Integer codeValidityInMinutes) {
+        this.codeValidityInMinutes = codeValidityInMinutes;
+    }
 
-	private String easterEggCode;
+    public Integer getMaxTrialsPerCode() {
+        return this.maxTrialsPerCode;
+    }
 
-	public String getShortCode() {
-		return shortCode;
-	}
+    public void setMaxTrialsPerCode(Integer maxTrialsPerCode) {
+        this.maxTrialsPerCode = maxTrialsPerCode;
+    }
 
-	public void setShortCode(String shortCode) {
-		this.shortCode = shortCode;
-	}
+    public String getRegion() {
+        return this.region;
+    }
 
-	public Integer getCodeLength() {
-		return codeLength;
-	}
+    public void setRegion(String region) {
+        this.region = region;
+    }
 
-	public void setCodeLength(Integer codeLength) {
-		this.codeLength = codeLength;
-	}
+    public String getAllowedRegions() {
+        return this.allowedRegions;
+    }
 
-	public Integer getMaxSmsPerPeriod() {
-		return maxSmsPerPeriod;
-	}
+    public void setAllowedRegions(String allowedRegions) {
+        this.allowedRegions = allowedRegions;
+    }
 
-	public void setMaxSmsPerPeriod(Integer maxSmsPerPeriod) {
-		this.maxSmsPerPeriod = maxSmsPerPeriod;
-	}
+    public String getSenderId() {
+        return this.senderId;
+    }
 
-	public Integer getPeriodInMinutes() {
-		return periodInMinutes;
-	}
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
 
-	public void setPeriodInMinutes(Integer periodInMinutes) {
-		this.periodInMinutes = periodInMinutes;
-	}
+    public Integer getMinTimeBetweenTwoSmsInSeconds() {
+        return this.minTimeBetweenTwoSmsInSeconds;
+    }
 
-	public Integer getCodeValidityInMinutes() {
-		return codeValidityInMinutes;
-	}
+    public void setMinTimeBetweenTwoSmsInSeconds(Integer minTimeBetweenTwoSmsInSeconds) {
+        this.minTimeBetweenTwoSmsInSeconds = minTimeBetweenTwoSmsInSeconds;
+    }
 
-	public void setCodeValidityInMinutes(Integer codeValidityInMinutes) {
-		this.codeValidityInMinutes = codeValidityInMinutes;
-	}
+    public Integer getTransferDelayInHours() {
+        return this.transferDelayInHours;
+    }
 
-	public Integer getMaxTrialsPerCode() {
-		return maxTrialsPerCode;
-	}
+    public void setTransferDelayInHours(Integer transferDelayInHours) {
+        this.transferDelayInHours = transferDelayInHours;
+    }
 
-	public void setMaxTrialsPerCode(Integer maxTrialsPerCode) {
-		this.maxTrialsPerCode = maxTrialsPerCode;
-	}
+    public String getEasterEggPhoneNumber() {
+        return this.easterEggPhoneNumber;
+    }
 
-	public String getRegion() {
-		return region;
-	}
+    public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
+        this.easterEggPhoneNumber = easterEggPhoneNumber;
+    }
 
-	public void setRegion(String region) {
-		this.region = region;
-	}
+    public String getEasterEggCode() {
+        return this.easterEggCode;
+    }
 
-	public String getAllowedRegions() {
-		return allowedRegions;
-	}
-
-	public void setAllowedRegions(String allowedRegions) {
-		this.allowedRegions = allowedRegions;
-	}
-
-	public String getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(String senderId) {
-		this.senderId = senderId;
-	}
-
-	public Integer getMinTimeBetweenTwoSmsInSeconds() {
-		return minTimeBetweenTwoSmsInSeconds;
-	}
-
-	public void setMinTimeBetweenTwoSmsInSeconds(Integer minTimeBetweenTwoSmsInSeconds) {
-		this.minTimeBetweenTwoSmsInSeconds = minTimeBetweenTwoSmsInSeconds;
-	}
-
-	public Integer getTransferDelayInHours() {
-		return transferDelayInHours;
-	}
-
-	public void setTransferDelayInHours(Integer transferDelayInHours) {
-		this.transferDelayInHours = transferDelayInHours;
-	}
-
-	public String getEasterEggPhoneNumber() {
-		return easterEggPhoneNumber;
-	}
-
-	public void setEasterEggPhoneNumber(String easterEggPhoneNumber) {
-		this.easterEggPhoneNumber = easterEggPhoneNumber;
-	}
-
-	public String getEasterEggCode() {
-		return easterEggCode;
-	}
-
-	public void setEasterEggCode(String easterEggCode) {
-		this.easterEggCode = easterEggCode;
-	}
-
+    public void setEasterEggCode(String easterEggCode) {
+        this.easterEggCode = easterEggCode;
+    }
 }

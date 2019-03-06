@@ -1,54 +1,56 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.starcut.auth.sms.db.entity;
 
 import java.time.Instant;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
 @Entity
 public class PhoneUuid {
+    @Id
+    private String phoneNumber;
+    @NotBlank
+    private String uuid;
+    private String newUuid;
+    private Instant changeRequestedAt;
 
-	@Id
-	private String phoneNumber;
+    public PhoneUuid() {
+    }
 
-	@NotBlank
-	private String uuid;
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
 
-	private String newUuid;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-	private Instant changeRequestedAt;
+    public String getUuid() {
+        return this.uuid;
+    }
 
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
+    public String getNewUuid() {
+        return this.newUuid;
+    }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public void setNewUuid(String newUuid) {
+        this.newUuid = newUuid;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public Instant getChangeRequestedAt() {
+        return this.changeRequestedAt;
+    }
 
-	public String getNewUuid() {
-		return newUuid;
-	}
-
-	public void setNewUuid(String newUuid) {
-		this.newUuid = newUuid;
-	}
-
-	public Instant getChangeRequestedAt() {
-		return changeRequestedAt;
-	}
-
-	public void setChangeRequestedAt(Instant changeRequestedAt) {
-		this.changeRequestedAt = changeRequestedAt;
-	}
-
+    public void setChangeRequestedAt(Instant changeRequestedAt) {
+        this.changeRequestedAt = changeRequestedAt;
+    }
 }
